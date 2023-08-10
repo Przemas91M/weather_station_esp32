@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "737590269295",
+    "project_id": "weather-station-esp32-bc66b",
+    "storage_bucket": "weather-station-esp32-bc66b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737590269295:android:50712fd9d3a0633985c49a",
+        "android_client_info": {
+          "package_name": "com.example.weather_station_esp32"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "737590269295-12lt76tdinlfnlr0il5qg6bsm093jqnr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDymqNApZVew0dKOgyywFlt1VbPnGqSoMc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "737590269295-12lt76tdinlfnlr0il5qg6bsm093jqnr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
