@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/auth/bloc/auth_bloc.dart';
 import 'package:weather_station_esp32/auth/repository/auth_repo.dart';
 import 'package:weather_station_esp32/auth/view/sign_in_page.dart';
+import 'package:weather_station_esp32/style/color_palette.dart';
 
 class App extends StatelessWidget {
   App({super.key});
@@ -22,13 +23,17 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        if (state is Authenticated) {
-          return const SignInPage();
-        }
-        return const SignInPage();
-      },
-    ));
+    return MaterialApp(
+        theme: ThemeData(
+            textTheme: const TextTheme(
+                bodyMedium: TextStyle(color: ColorPalette.midBlue))),
+        home: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is Authenticated) {
+              return const SignInPage();
+            }
+            return const SignInPage();
+          },
+        ));
   }
 }
