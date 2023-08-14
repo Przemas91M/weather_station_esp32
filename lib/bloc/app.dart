@@ -6,8 +6,6 @@ import 'package:weather_station_esp32/auth/view/sign_in_page.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/view/weather_main_page.dart';
 
-import '../auth/view/sign_up_page.dart';
-
 class App extends StatelessWidget {
   App({super.key});
   final authRepository = AuthRepository();
