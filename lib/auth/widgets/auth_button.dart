@@ -12,14 +12,14 @@ class AuthButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: ColorPalette.yellow),
         child: Center(
           child: Text(
             textInput,
-            style: const TextStyle(color: ColorPalette.midBlue),
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
       ),

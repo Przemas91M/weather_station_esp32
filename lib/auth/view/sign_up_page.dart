@@ -1,65 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:weather_station_esp32/auth/repository/auth_repo.dart';
+import 'package:weather_station_esp32/auth/widgets/auth_button.dart';
+import 'package:weather_station_esp32/auth/widgets/elevated_text_input.dart';
+import 'package:weather_station_esp32/style/color_palette.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
+
+  static Route<void> route() {
+    return MaterialPageRoute<void>(builder: (_) => const SignUpPage());
+  }
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _displayNameController = TextEditingController();
-  AuthRepository authRepo = AuthRepository();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      backgroundColor: Colors.white,
+      body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextField(
-                decoration: const InputDecoration(hintText: 'Display name'),
-                controller: _displayNameController,
+              const Icon(Icons.cloud, color: ColorPalette.darkBlue, size: 60.0),
+              const SizedBox(height: 20.0),
+              ElevatedTextInput(
+                  inputText: "Name",
+                  icon: const Icon(Icons.abc),
+                  onChanged: (input) {}),
+              const SizedBox(height: 20.0),
+              ElevatedTextInput(
+                onChanged: (input) {},
+                inputText: 'Email',
+                icon: const Icon(Icons.person),
               ),
-              TextField(
-                decoration: const InputDecoration(hintText: 'Email'),
-                controller: _emailController,
-              ),
-              TextField(
-                decoration: const InputDecoration(hintText: 'Password'),
-                controller: _passwordController,
+              const SizedBox(height: 20.0),
+              ElevatedTextInput(
+                onChanged: (input) {},
+                inputText: 'Password',
                 obscureText: true,
+                icon: const Icon(Icons.lock),
               ),
+              const SizedBox(height: 20),
+              ElevatedTextInput(
+                  inputText: 'Repeat password',
+                  obscureText: true,
+                  icon: const Icon(Icons.lock),
+                  onChanged: (input) {}),
+              const SizedBox(height: 20.0),
+              AuthButton(textInput: 'Register', onTap: () {}),
+              const SizedBox(height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      authRepo.signUpWithEmailPassword(
-                          email: _emailController.text,
-                          password: _passwordController.text,
-                          displayName: _displayNameController.text);
-                    },
-                    child: const Text('Sign Up'),
+                  Text(
+                    'Already a member? ',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      authRepo.signInWithEmailPassword(
-                          email: _emailController.text,
-                          password: _passwordController.text);
-                    },
-                    child: const Text('Sign In'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      print(authRepo.currentUser.toString());
-                    },
-                    child: const Text('Show User'),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'Sign in here.',
+                      style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: ColorPalette.midBlue),
+                    ),
                   ),
                 ],
               )
