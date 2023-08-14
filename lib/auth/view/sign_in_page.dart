@@ -57,7 +57,10 @@ class _SignInPageState extends State<SignInPage> {
                   },
                 ),
                 const SizedBox(height: 20),
-                AuthButton(textInput: 'Login', onTap: () {}),
+                AuthButton(
+                    textInput: 'Login',
+                    onTap: () =>
+                        context.read<AuthBloc>().add(SignInRequested())),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,

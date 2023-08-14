@@ -24,6 +24,14 @@ class AuthRepository {
     return authService.userStream;
   }
 
+  Future<void> logOut() async {
+    try {
+      authService.logOut();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   Future<void> signInWithEmailPassword(
       {required String email, required String password}) async {
     try {

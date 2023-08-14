@@ -7,11 +7,13 @@ class ElevatedTextInput extends StatelessWidget {
       required this.icon,
       required this.onChanged,
       this.obscureText,
+      this.errorText,
       super.key});
 
   final String inputText;
   final Icon icon;
   final bool? obscureText;
+  final String? errorText;
   final void Function(String) onChanged;
 
   @override
@@ -27,6 +29,7 @@ class ElevatedTextInput extends StatelessWidget {
         obscureText: obscureText ?? false,
         onChanged: onChanged,
         decoration: InputDecoration(
+            errorText: errorText,
             enabledBorder: const UnderlineInputBorder(
                 borderSide: BorderSide(color: ColorPalette.midBlue)),
             focusedBorder: const UnderlineInputBorder(

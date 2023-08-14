@@ -15,6 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AppUserChanged>(_userChanged);
     on<SignInRequested>(_userSignIn);
     on<SignUpRequested>(_userSignUp);
+    on<LogOutRequested>(_logOutRequested);
     on<EmailChanged>(_emailChanged);
     on<PasswordChanged>(_passwordChanged);
   }
@@ -39,10 +40,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   FutureOr<void> _userChanged(AppUserChanged event, Emitter<AuthState> emit) {
     emit(event.user == null
-        ? state.copyWith(
-            email: '', password: '', status: AuthStatus.unauthenticated)
+        ? const AuthState(status: AuthStatus.unauthenticated)
         : state.copyWith(
-            email: event.user!.email, status: AuthStatus.authenticated));
+            email: event.user!.email,
+            displayName: event.user!.displayName,
+            status: AuthStatus.authenticated));
   }
 
   FutureOr<void> _userSignIn(SignInRequested event, Emitter<AuthState> emit) {
@@ -52,14 +54,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   FutureOr<void> _userSignUp(SignUpRequested event, Emitter<AuthState> emit) {
     _authRepository.signUpWithEmailPassword(
-        email: event.email,
-        password: event.password,
-        displayName: event.displayName);
+        email: state.email,
+        password: state.password,
+        displayName: state.displayName);
   }
 
   @override
   Future<void> close() {
     _authSubscription?.cancel();
     return super.close();
+  }
+
+  FutureOr<void> _logOutRequested(
+      LogOutRequested event, Emitter<AuthState> emit) {
+    _authRepository.logOut();
   }
 }

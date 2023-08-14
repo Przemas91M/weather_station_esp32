@@ -18,6 +18,11 @@ class AppUserChanged extends AuthEvent {
   final User? user;
 }
 
+class DisplayNameChanged extends AuthEvent {
+  const DisplayNameChanged({required this.displayName});
+  final String displayName;
+}
+
 class EmailChanged extends AuthEvent {
   const EmailChanged({required this.email});
   final String email;
@@ -28,18 +33,13 @@ class PasswordChanged extends AuthEvent {
   final String password;
 }
 
-class SignInRequested extends AuthEvent {
-  const SignInRequested({required this.email, required this.password});
-  final String email;
-  final String password;
+class ConfirmPasswordChanged extends AuthEvent {
+  const ConfirmPasswordChanged({required this.confirmPassword});
+  final String confirmPassword;
 }
 
-class SignUpRequested extends AuthEvent {
-  const SignUpRequested(
-      {required this.email, required this.password, required this.displayName});
-  final String email;
-  final String password;
-  final String displayName;
-}
+class SignInRequested extends AuthEvent {}
+
+class SignUpRequested extends AuthEvent {}
 
 class LogOutRequested extends AuthEvent {}
