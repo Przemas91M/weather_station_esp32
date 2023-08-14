@@ -37,6 +37,7 @@ class _SignInPageState extends State<SignInPage> {
                         onChanged: (input) => context
                             .read<AuthBloc>()
                             .add(EmailChanged(email: input)),
+                        errorText: state.errorMessage,
                         inputText: 'Email',
                         icon: const Icon(Icons.person));
                   },

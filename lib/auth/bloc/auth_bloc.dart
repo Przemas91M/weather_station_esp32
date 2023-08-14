@@ -30,7 +30,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   FutureOr<void> _emailChanged(event, Emitter<AuthState> emit) {
-    emit(state.copyWith(email: event.email));
+    if (_validateEmail(event.email)) {
+      emit(AuthState(email: event.email));
+    }
+    emit(state.copyWith(email: event.email, errorMessage: 'Email is invalid!'));
   }
 
   FutureOr<void> _passwordChanged(
@@ -40,7 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   FutureOr<void> _userChanged(AppUserChanged event, Emitter<AuthState> emit) {
     emit(event.user == null
-        ? const AuthState(status: AuthStatus.unauthenticated)
+        ? state.copyWith(status: AuthStatus.unauthenticated)
         : state.copyWith(
             email: event.user!.email,
             displayName: event.user!.displayName,
@@ -48,25 +51,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   FutureOr<void> _userSignIn(SignInRequested event, Emitter<AuthState> emit) {
+    emit(state.copyWith(status: AuthStatus.loading));
     _authRepository.signInWithEmailPassword(
         email: state.email, password: state.password);
   }
 
   FutureOr<void> _userSignUp(SignUpRequested event, Emitter<AuthState> emit) {
+    emit(state.copyWith(status: AuthStatus.loading));
     _authRepository.signUpWithEmailPassword(
         email: state.email,
         password: state.password,
         displayName: state.displayName);
   }
 
+  FutureOr<void> _logOutRequested(
+      LogOutRequested event, Emitter<AuthState> emit) {
+    emit(state.copyWith(status: AuthStatus.loading));
+    _authRepository.logOut();
+  }
+
+  bool _validateEmail(String email) {
+    return RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(email);
+  }
+
   @override
   Future<void> close() {
     _authSubscription?.cancel();
     return super.close();
-  }
-
-  FutureOr<void> _logOutRequested(
-      LogOutRequested event, Emitter<AuthState> emit) {
-    _authRepository.logOut();
   }
 }

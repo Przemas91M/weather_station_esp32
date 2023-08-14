@@ -35,6 +35,10 @@ class AppView extends StatelessWidget {
           builder: (context, state) {
             if (state.status == AuthStatus.authenticated) {
               return const WeatherMainPage();
+            } else if (state.status == AuthStatus.loading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
             }
             return const SignInPage();
           },
