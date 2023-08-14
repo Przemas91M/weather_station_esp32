@@ -18,6 +18,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogOutRequested>(_logOutRequested);
     on<EmailChanged>(_emailChanged);
     on<PasswordChanged>(_passwordChanged);
+    on<ConfirmPasswordChanged>(_confirmPasswordChanged);
+    on<DisplayNameChanged>(_displayNameChanged);
   }
 
   final AuthRepository _authRepository;
@@ -29,6 +31,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         .listen((user) => add(AppUserChanged(user: user)));
   }
 
+  FutureOr<void> _displayNameChanged(
+      DisplayNameChanged event, Emitter<AuthState> emit) {
+    emit(state.copyWith(displayName: event.displayName));
+  }
+
   FutureOr<void> _emailChanged(event, Emitter<AuthState> emit) {
     if (_validateEmail(event.email)) {
       emit(AuthState(email: event.email));
@@ -38,7 +45,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   FutureOr<void> _passwordChanged(
       PasswordChanged event, Emitter<AuthState> emit) {
-    emit(state.copyWith(password: event.password));
+    emit(event.password.length >= 8
+        ? AuthState(password: event.password)
+        : state.copyWith(
+            password: event.password, errorMessage: 'Password too short!'));
+  }
+
+  FutureOr<void> _confirmPasswordChanged(
+      ConfirmPasswordChanged event, Emitter<AuthState> emit) {
+    emit(state.password == event.confirmPassword
+        ? AuthState(confirmedPassword: event.confirmPassword)
+        : state.copyWith(
+            confirmedPassword: event.confirmPassword,
+            errorMessage: 'Passwords not matching!'));
   }
 
   FutureOr<void> _userChanged(AppUserChanged event, Emitter<AuthState> emit) {
@@ -51,17 +70,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   FutureOr<void> _userSignIn(SignInRequested event, Emitter<AuthState> emit) {
-    emit(state.copyWith(status: AuthStatus.loading));
-    _authRepository.signInWithEmailPassword(
-        email: state.email, password: state.password);
+    if (validateAll()) {
+      emit(state.copyWith(status: AuthStatus.loading));
+      _authRepository.signInWithEmailPassword(
+          email: state.email, password: state.password);
+    } else {
+      emit(state.copyWith(
+          status: AuthStatus.error, errorMessage: 'Enter valid credentials!'));
+    }
   }
 
   FutureOr<void> _userSignUp(SignUpRequested event, Emitter<AuthState> emit) {
-    emit(state.copyWith(status: AuthStatus.loading));
-    _authRepository.signUpWithEmailPassword(
-        email: state.email,
-        password: state.password,
-        displayName: state.displayName);
+    if (validateAll()) {
+      emit(state.copyWith(status: AuthStatus.loading));
+      _authRepository.signUpWithEmailPassword(
+          email: state.email,
+          password: state.password,
+          displayName: state.displayName);
+    } else {
+      emit(state.copyWith(
+          status: AuthStatus.error, errorMessage: 'Enter valid data!'));
+    }
   }
 
   FutureOr<void> _logOutRequested(
@@ -74,6 +103,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     return RegExp(
             r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(email);
+  }
+
+  bool _validatePassword(String password) {
+    return password.length >= 8;
+  }
+
+  bool _validateUserName(String username) {
+    return username.length >= 3;
+  }
+
+  bool validateAll() {
+    return _validateEmail(state.email) &&
+        _validateUserName(state.displayName) &&
+        _validatePassword(state.password);
   }
 
   @override

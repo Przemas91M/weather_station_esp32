@@ -15,7 +15,14 @@ class AuthButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 15.0),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: ColorPalette.yellow),
+            border: Border.all(color: ColorPalette.midBlue, width: 2.0),
+            color: ColorPalette.yellow,
+            boxShadow: const [
+              BoxShadow(
+                color: ColorPalette.midBlue,
+                offset: Offset(5.0, 5.0),
+              )
+            ]),
         child: Center(
           child: Text(
             textInput,
