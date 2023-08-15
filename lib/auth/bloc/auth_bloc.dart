@@ -12,10 +12,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       : _authRepository = authRepository,
         super(const AuthState()) {
     // on<InitializeApp>(_initializeApp);
-    on<AppUserChanged>(_userChanged);
+    //on<AppUserChanged>(_userChanged);
     on<SignInRequested>(_userSignIn);
     on<SignUpRequested>(_userSignUp);
-    on<LogOutRequested>(_logOutRequested);
+    //on<LogOutRequested>(_logOutRequested);
     on<EmailChanged>(_emailChanged);
     on<PasswordChanged>(_passwordChanged);
     on<ConfirmPasswordChanged>(_confirmPasswordChanged);
@@ -60,20 +60,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             errorMessage: 'Passwords not matching!'));
   }
 
-  FutureOr<void> _userChanged(AppUserChanged event, Emitter<AuthState> emit) {
-    emit(event.user == null
-        ? state.copyWith(status: AuthStatus.unauthenticated)
-        : state.copyWith(
-            email: event.user!.email,
-            displayName: event.user!.displayName,
-            status: AuthStatus.authenticated));
-  }
+  // FutureOr<void> _userChanged(AppUserChanged event, Emitter<AuthState> emit) {
+  //   emit(event.user == null
+  //       ? state.copyWith(status: AuthStatus.unauthenticated)
+  //       : state.copyWith(
+  //           email: event.user!.email,
+  //           displayName: event.user!.displayName,
+  //           status: AuthStatus.authenticated));
+  // }
 
   FutureOr<void> _userSignIn(SignInRequested event, Emitter<AuthState> emit) {
     if (validateAll()) {
       emit(state.copyWith(status: AuthStatus.loading));
       _authRepository.signInWithEmailPassword(
           email: state.email, password: state.password);
+      emit(state.copyWith(status: AuthStatus.authenticated));
     } else {
       emit(state.copyWith(
           status: AuthStatus.error, errorMessage: 'Enter valid credentials!'));
@@ -93,11 +94,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  FutureOr<void> _logOutRequested(
-      LogOutRequested event, Emitter<AuthState> emit) {
-    emit(state.copyWith(status: AuthStatus.loading));
-    _authRepository.logOut();
-  }
+  // FutureOr<void> _logOutRequested(
+  //     LogOutRequested event, Emitter<AuthState> emit) {
+  //   emit(state.copyWith(status: AuthStatus.loading));
+  //   _authRepository.logOut();
+  // }
 
   bool _validateEmail(String email) {
     return RegExp(

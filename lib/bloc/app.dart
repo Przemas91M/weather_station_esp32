@@ -15,10 +15,13 @@ class App extends StatelessWidget {
 // tutaj bedzie wybierany screen startowy - albo zaczynamy od login albo od razu przechodzimy do podgladu pogody
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(providers: [
-      BlocProvider<AppBloc>(
-          create: (context) => AppBloc(authRepository: _authRepository))
-    ], child: const AppView());
+    return RepositoryProvider.value(
+      value: _authRepository,
+      child: BlocProvider(
+        create: (_) => AppBloc(authRepository: _authRepository),
+        child: const AppView(),
+      ),
+    );
   }
 }
 
