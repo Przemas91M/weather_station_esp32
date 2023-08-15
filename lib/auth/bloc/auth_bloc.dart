@@ -11,7 +11,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required AuthRepository authRepository})
       : _authRepository = authRepository,
         super(const AuthState()) {
-    on<InitializeApp>(_initializeApp);
+    // on<InitializeApp>(_initializeApp);
     on<AppUserChanged>(_userChanged);
     on<SignInRequested>(_userSignIn);
     on<SignUpRequested>(_userSignUp);
@@ -25,11 +25,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   StreamSubscription<User?>? _authSubscription;
 
-  FutureOr<void> _initializeApp(InitializeApp event, Emitter<AuthState> emit) {
-    //_authSubscription!.cancel();
-    _authSubscription = _authRepository.userStream
-        .listen((user) => add(AppUserChanged(user: user)));
-  }
+  // FutureOr<void> _initializeApp(InitializeApp event, Emitter<AuthState> emit) {
+  //   //_authSubscription!.cancel();
+  //   _authSubscription = _authRepository.userStream
+  //       .listen((user) => add(AppUserChanged(user: user)));
+  // }
 
   FutureOr<void> _displayNameChanged(
       DisplayNameChanged event, Emitter<AuthState> emit) {

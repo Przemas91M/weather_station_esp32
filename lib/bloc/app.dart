@@ -6,6 +6,8 @@ import 'package:weather_station_esp32/auth/view/sign_in_page.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/view/weather_main_page.dart';
 
+import 'app_bloc.dart';
+
 class App extends StatelessWidget {
   const App({super.key, required AuthRepository authRepository})
       : _authRepository = authRepository;
@@ -15,9 +17,8 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [
-      BlocProvider<AuthBloc>(
-          create: (context) =>
-              AuthBloc(authRepository: _authRepository)..add(InitializeApp()))
+      BlocProvider<AppBloc>(
+          create: (context) => AppBloc(authRepository: _authRepository))
     ], child: const AppView());
   }
 }
