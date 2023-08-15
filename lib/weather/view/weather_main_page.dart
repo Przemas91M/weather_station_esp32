@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../auth/bloc/auth_bloc.dart';
+import '../../bloc/app_bloc.dart';
 
 class WeatherMainPage extends StatelessWidget {
   const WeatherMainPage({super.key});
@@ -11,20 +11,17 @@ class WeatherMainPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(actions: [
         IconButton(
-            onPressed: () => context.read<AuthBloc>().add(LogOutRequested()),
+            onPressed: () => context.read<AppBloc>().add(AppLogOutRequested()),
             icon: const Icon(Icons.exit_to_app))
       ]),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text('Logged in as:'),
-              Text(state.displayName),
-            ],
-          );
-        },
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text('Logged in as:'),
+          Text(context.select(
+              (AppBloc bloc) => bloc.state.user?.displayName ?? 'None')),
+        ],
       ),
     );
   }

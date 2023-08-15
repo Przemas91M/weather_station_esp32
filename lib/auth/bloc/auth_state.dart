@@ -40,6 +40,6 @@ final class AuthState extends Equatable {
         displayName: displayName ?? this.displayName,
         status: status ?? this.status,
         isValidated: isValidated ?? this.isValidated,
-        errorMessage: errorMessage ?? this.errorMessage);
+        errorMessage: errorMessage);
   }
 }

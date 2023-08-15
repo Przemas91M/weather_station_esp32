@@ -9,6 +9,7 @@ class ElevatedTextInput extends StatelessWidget {
       required this.onChanged,
       this.obscureText,
       this.errorText,
+      this.onEditingComplete,
       super.key});
 
   final String inputText;
@@ -17,6 +18,7 @@ class ElevatedTextInput extends StatelessWidget {
   final bool? obscureText;
   final String? errorText;
   final void Function(String) onChanged;
+  final void Function(String)? onEditingComplete;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,7 @@ class ElevatedTextInput extends StatelessWidget {
         child: TextField(
           obscureText: obscureText ?? false,
           onChanged: onChanged,
+          onSubmitted: onEditingComplete,
           decoration: InputDecoration(
               helperText: helperText,
               helperStyle: const TextStyle(color: ColorPalette.darkBlue),

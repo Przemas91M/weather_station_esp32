@@ -23,7 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   final AuthRepository _authRepository;
-  StreamSubscription<User?>? _authSubscription;
+  //StreamSubscription<User?>? _authSubscription;
 
   // FutureOr<void> _initializeApp(InitializeApp event, Emitter<AuthState> emit) {
   //   //_authSubscription!.cancel();
@@ -38,7 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   FutureOr<void> _emailChanged(event, Emitter<AuthState> emit) {
     if (_validateEmail(event.email)) {
-      emit(AuthState(email: event.email));
+      emit(state.copyWith(email: event.email));
     }
     emit(state.copyWith(email: event.email, errorMessage: 'Email is invalid!'));
   }
@@ -46,7 +46,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FutureOr<void> _passwordChanged(
       PasswordChanged event, Emitter<AuthState> emit) {
     emit(event.password.length >= 8
-        ? AuthState(password: event.password)
+        ? state.copyWith(password: event.password)
         : state.copyWith(
             password: event.password, errorMessage: 'Password too short!'));
   }
@@ -69,27 +69,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   //           status: AuthStatus.authenticated));
   // }
 
-  FutureOr<void> _userSignIn(SignInRequested event, Emitter<AuthState> emit) {
-    if (validateAll()) {
+  FutureOr<void> _userSignIn(
+      SignInRequested event, Emitter<AuthState> emit) async {
+    if (_validateEmail(state.email) && _validatePassword(state.password)) {
       emit(state.copyWith(status: AuthStatus.loading));
+      await Future.delayed(const Duration(seconds: 2));
       _authRepository.signInWithEmailPassword(
           email: state.email, password: state.password);
       emit(state.copyWith(status: AuthStatus.authenticated));
     } else {
-      emit(state.copyWith(
+      emit(const AuthState(
           status: AuthStatus.error, errorMessage: 'Enter valid credentials!'));
     }
   }
 
-  FutureOr<void> _userSignUp(SignUpRequested event, Emitter<AuthState> emit) {
+  FutureOr<void> _userSignUp(
+      SignUpRequested event, Emitter<AuthState> emit) async {
     if (validateAll()) {
       emit(state.copyWith(status: AuthStatus.loading));
-      _authRepository.signUpWithEmailPassword(
+      await _authRepository.signUpWithEmailPassword(
           email: state.email,
           password: state.password,
           displayName: state.displayName);
+      emit(state.copyWith(status: AuthStatus.authenticated));
     } else {
-      emit(state.copyWith(
+      emit(const AuthState(
           status: AuthStatus.error, errorMessage: 'Enter valid data!'));
     }
   }
@@ -118,11 +122,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     return _validateEmail(state.email) &&
         _validateUserName(state.displayName) &&
         _validatePassword(state.password);
-  }
-
-  @override
-  Future<void> close() {
-    _authSubscription?.cancel();
-    return super.close();
   }
 }

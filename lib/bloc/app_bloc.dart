@@ -11,7 +11,7 @@ part 'app_state.dart';
 class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc({required AuthRepository authRepository})
       : _authRepository = authRepository,
-        super(AppInitial()) {
+        super(const AppInitial()) {
     on<_AppUserChanged>(_userChanged);
     on<AppLogOutRequested>(_appLogoutRequested);
     _userSubscription =
@@ -21,7 +21,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   late final StreamSubscription<User?> _userSubscription;
 
   FutureOr<void> _userChanged(_AppUserChanged event, Emitter<AppState> emit) {
-    emit(event.user == null ? Unauthenticated() : Authenticated(event.user!));
+    emit(event.user == null
+        ? const Unauthenticated()
+        : Authenticated(event.user!));
   }
 
   FutureOr<void> _appLogoutRequested(

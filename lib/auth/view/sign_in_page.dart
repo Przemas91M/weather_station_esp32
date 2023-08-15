@@ -29,6 +29,10 @@ class _SignInForm extends StatelessWidget {
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(
                 content: Text(state.errorMessage ?? 'Validation error!')));
+        } else if (state.status == AuthStatus.authenticated) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(const SnackBar(content: Text('Login successful!')));
         }
       },
       child: Scaffold(
@@ -74,10 +78,16 @@ class _SignInForm extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 20),
-                  AuthButton(
-                      textInput: 'Login',
-                      onTap: () =>
-                          context.read<AuthBloc>().add(SignInRequested())),
+                  BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
+                    if (state.status == AuthStatus.loading) {
+                      return const CircularProgressIndicator();
+                    } else {
+                      return AuthButton(
+                          textInput: 'Login',
+                          onTap: () =>
+                              context.read<AuthBloc>().add(SignInRequested()));
+                    }
+                  }),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
