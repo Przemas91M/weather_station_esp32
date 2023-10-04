@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
+import 'package:weather_station_esp32/weather/widgets/summary_card.dart';
 
 import '../../bloc/app_bloc.dart';
 
@@ -18,6 +19,9 @@ class _MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String? username = context
+        .select((AppBloc bloc) => bloc.state.user?.displayName ?? 'None');
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -38,7 +42,7 @@ class _MainPage extends StatelessWidget {
             decoration: BoxDecoration(
                 color: ColorPalette.yellow,
                 shape: BoxShape.circle,
-                border: Border.all(color: ColorPalette.darkBlue, width: 5.0)),
+                border: Border.all(color: ColorPalette.midBlue, width: 5.0)),
             child: const Text(
               'P',
               style: TextStyle(color: ColorPalette.darkBlue),
@@ -47,18 +51,28 @@ class _MainPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          //big widget showing current weather with station readings
-          //next a list with weather forecast for 5 days, depending on location selected
-          //big cards with auxiliary readings (UV index, rain cubics, wind direction)
-          //depending on screen size - everything should be scrollable
-          const Text('Logged in as:'),
-          Text(context.select(
-              (AppBloc bloc) => bloc.state.user?.displayName ?? 'None')),
-        ],
+      body: Container(
+        padding: const EdgeInsets.only(
+            left: 10.0, top: 10.0, right: 15.0, bottom: 10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Hello $username, here\'s your today weather:',
+              textAlign: TextAlign.left,
+            ),
+            const SizedBox(height: 5.0),
+            //big widget showing current weather with station readings
+            const WeatherSummaryCard(),
+            //next a list with weather forecast for 5 days, depending on location selected
+            //big cards with auxiliary readings (UV index, rain cubics, wind direction)
+            //depending on screen size - everything should be scrollable
+            const Text('Logged in as:'),
+            Text(context.select(
+                (AppBloc bloc) => bloc.state.user?.displayName ?? 'None')),
+          ],
+        ),
       ),
     );
   }
