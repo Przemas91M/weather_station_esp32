@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/auth/repository/auth_repo.dart';
 import 'package:weather_station_esp32/auth/view/sign_in_page.dart';
+import 'package:weather_station_esp32/auth/view/sign_up_page.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/view/weather_main_page.dart';
 
@@ -31,6 +32,11 @@ class AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        routes: {
+          '/signIn': (context) => const SignInPage(),
+          '/signUp': (context) => const SignUpPage(),
+          '/homePage': (context) => const WeatherMainPage(),
+        },
         theme: ThemeData(
             textTheme: const TextTheme(
                 bodyLarge:

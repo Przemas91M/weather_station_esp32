@@ -73,10 +73,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       SignInRequested event, Emitter<AuthState> emit) async {
     if (_validateEmail(state.email) && _validatePassword(state.password)) {
       emit(state.copyWith(status: AuthStatus.loading));
-      await Future.delayed(const Duration(seconds: 2));
-      _authRepository.signInWithEmailPassword(
-          email: state.email, password: state.password);
-      emit(state.copyWith(status: AuthStatus.authenticated));
+      try {
+        await Future.delayed(const Duration(seconds: 2));
+        await _authRepository.signInWithEmailPassword(
+            email: state.email, password: state.password);
+        emit(state.copyWith(status: AuthStatus.authenticated));
+      } on SignInEmailPasswordError catch (e) {
+        emit(state.copyWith(status: AuthStatus.error, errorMessage: e.message));
+      } catch (_) {
+        emit(state.copyWith(
+            status: AuthStatus.error, errorMessage: 'Unknown error!'));
+      }
     } else {
       emit(const AuthState(
           status: AuthStatus.error, errorMessage: 'Enter valid credentials!'));
@@ -87,11 +94,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       SignUpRequested event, Emitter<AuthState> emit) async {
     if (validateAll()) {
       emit(state.copyWith(status: AuthStatus.loading));
-      await _authRepository.signUpWithEmailPassword(
-          email: state.email,
-          password: state.password,
-          displayName: state.displayName);
-      emit(state.copyWith(status: AuthStatus.authenticated));
+      try {
+        await _authRepository.signUpWithEmailPassword(
+            email: state.email,
+            password: state.password,
+            displayName: state.displayName);
+        emit(state.copyWith(status: AuthStatus.authenticated));
+      } on SignUpEmailPasswordError catch (e) {
+        emit(state.copyWith(status: AuthStatus.error, errorMessage: e.message));
+      } catch (_) {
+        emit(state.copyWith(
+            status: AuthStatus.error, errorMessage: 'Unknown error!'));
+      }
     } else {
       emit(const AuthState(
           status: AuthStatus.error, errorMessage: 'Enter valid data!'));

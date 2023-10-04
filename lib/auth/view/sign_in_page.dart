@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/auth/repository/auth_repo.dart';
-import 'package:weather_station_esp32/auth/view/sign_up_page.dart';
 import 'package:weather_station_esp32/auth/widgets/auth_button.dart';
 import 'package:weather_station_esp32/auth/widgets/elevated_text_input.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
@@ -23,6 +22,7 @@ class _SignInForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
         if (state.status == AuthStatus.error) {
           ScaffoldMessenger.of(context)
@@ -97,8 +97,7 @@ class _SignInForm extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       GestureDetector(
-                        onTap: () => Navigator.of(context)
-                            .push<void>(SignUpPage.route()),
+                        onTap: () => Navigator.of(context).pushNamed('/signUp'),
                         child: const Text(
                           'Create account here!',
                           style: TextStyle(

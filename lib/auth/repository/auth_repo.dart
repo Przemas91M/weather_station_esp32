@@ -2,20 +2,20 @@
 //wywolanie funkcji pobierajacych dane uzytkownikow i zwracajace bledy
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:weather_station_esp32/auth/repository/auth_service.dart';
 
 class AuthRepository {
-  final AuthService _authService = AuthService();
+  // ignore: prefer_final_fields
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  //final AuthService _authService = AuthService();
 
   Stream<User?> get userStream {
-    return _authService.userStream;
+    return _auth.authStateChanges();
   }
 
   Future<void> logOut() async {
     try {
-      _authService.logOut();
+      _auth.signOut();
     } catch (e) {
-      //TODO zwracac kod bledu stringiem albo klasa
       print(e.toString());
     }
   }
@@ -23,10 +23,9 @@ class AuthRepository {
   Future<void> signInWithEmailPassword(
       {required String email, required String password}) async {
     try {
-      _authService.signInWithEmailPassword(email, password);
-    } catch (e) {
-      //TODO zwracac stan bledu z kodem
-      print(e.toString());
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      throw SignInEmailPasswordError.fromCode(e.code);
     }
   }
 
@@ -35,10 +34,58 @@ class AuthRepository {
       required String password,
       required String displayName}) async {
     try {
-      await _authService.signUpWithEmailPassword(email, password, displayName);
-    } catch (e) {
-      //TODO zwracac stan bledu
-      print(e.toString());
+      await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      if (_auth.currentUser!.displayName == null) {
+        await _auth.currentUser!.updateDisplayName(displayName);
+      }
+    } on FirebaseAuthException catch (e) {
+      throw SignUpEmailPasswordError.fromCode(e.code);
+    }
+  }
+}
+
+class SignInEmailPasswordError implements Exception {
+  SignInEmailPasswordError([this.message = 'Unknown exception occured!']);
+
+  final String message;
+
+  factory SignInEmailPasswordError.fromCode(String code) {
+    switch (code) {
+      case 'invalid-email':
+        return SignInEmailPasswordError('Invalid email!');
+      case 'user-disabled':
+        return SignInEmailPasswordError('User account is disabled!');
+      case 'user-not-found':
+        return SignInEmailPasswordError(
+            'User not found! Create account first!');
+      case 'wrong-password':
+        return SignInEmailPasswordError('Invalid password!');
+      default:
+        return SignInEmailPasswordError();
+    }
+  }
+}
+
+class SignUpEmailPasswordError implements Exception {
+  SignUpEmailPasswordError([this.message = 'Unknown exception occured']);
+
+  final String message;
+
+  factory SignUpEmailPasswordError.fromCode(String code) {
+    switch (code) {
+      case 'email-already-in-use':
+        return SignUpEmailPasswordError('Account already exists!');
+      case 'invalid-email':
+        return SignUpEmailPasswordError('Email is invalid!');
+      case 'operation-not-allowed':
+        return SignUpEmailPasswordError(
+            'Operation not allowed! Try login with provider!');
+      case 'weak-password':
+        return SignUpEmailPasswordError(
+            'Password is weak, choose better password!');
+      default:
+        return SignUpEmailPasswordError();
     }
   }
 }
