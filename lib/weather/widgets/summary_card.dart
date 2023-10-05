@@ -12,7 +12,7 @@ class WeatherSummaryCard extends StatelessWidget {
           color: Colors.white,
           border: Border.all(
             color: ColorPalette.midBlue,
-            width: 5.0,
+            width: 3.0,
           ),
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: const [
