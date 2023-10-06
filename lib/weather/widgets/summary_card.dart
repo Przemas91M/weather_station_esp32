@@ -20,7 +20,7 @@ class WeatherSummaryCard extends StatelessWidget {
           ]),
       child: const Column(children: [
         Text(
-          'KOSZALIN',
+          'Forecast',
           style: TextStyle(fontSize: 20.0),
         ),
         SizedBox(
@@ -40,14 +40,9 @@ class WeatherSummaryCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              '22°C',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            Text(
-              '95% RH',
-              style: TextStyle(fontSize: 20.0),
-            ),
+            Text('95%', style: TextStyle(fontSize: 20.0)),
+            Text('22°C', style: TextStyle(fontSize: 20.0)),
+            Text('UV 2', style: TextStyle(fontSize: 20.0)),
           ],
         )
       ]),

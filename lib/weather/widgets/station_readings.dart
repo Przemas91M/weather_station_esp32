@@ -18,14 +18,18 @@ class StationReadingsCard extends StatelessWidget {
           boxShadow: const [
             BoxShadow(color: ColorPalette.midBlue, offset: Offset(5.0, 5.0))
           ]),
-      child: Column(
+      child: const Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text('Station Readings'),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [Text('22oC'), Text('75%')],
+            children: [
+              Text('75%'),
+              Text('22°C'),
+              Text('UV 2'),
+            ],
           )
         ],
       ),
