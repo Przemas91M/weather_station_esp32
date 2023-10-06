@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/widgets/forecast_list.dart';
+import 'package:weather_station_esp32/weather/widgets/station_readings.dart';
 import 'package:weather_station_esp32/weather/widgets/summary_card.dart';
 
 import '../../bloc/app_bloc.dart';
@@ -25,15 +26,18 @@ class _MainPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 5.0,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
         actions: [
           IconButton(
               onPressed: () =>
                   context.read<AppBloc>().add(AppLogOutRequested()),
               icon: const Icon(Icons.exit_to_app))
         ],
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         foregroundColor: ColorPalette.midBlue,
-        shadowColor: Colors.transparent,
+        shadowColor: ColorPalette.midBlue,
         leading: GestureDetector(
           onTap:
               () {}, //TODO: implement user screen (change name, location, password, maybe theme? - night or day)
@@ -52,6 +56,14 @@ class _MainPage extends StatelessWidget {
             ),
           ),
         ),
+        title: const Text(
+          'Koszalin',
+        ),
+        titleTextStyle: const TextStyle(
+            color: ColorPalette.midBlue,
+            fontSize: 20,
+            fontWeight: FontWeight.bold),
+        centerTitle: true,
       ),
       body: Container(
         padding: const EdgeInsets.only(
@@ -65,9 +77,15 @@ class _MainPage extends StatelessWidget {
               textAlign: TextAlign.left,
             ),
             const SizedBox(height: 5.0),
-            //big widget showing current weather with station readings
+            //big widget showing current weather from station
+            const StationReadingsCard(),
             const WeatherSummaryCard(),
-            //next a list with weather forecast for 5 days, depending on location selected
+            const SizedBox(
+              height: 20.0,
+            ),
+            //second big widget with weather from forecast
+            //next a list with weather forecast for 7 days, depending on location selected
+            const Text('7 day forecast:'),
             const ForecastList(),
             //big cards with auxiliary readings (UV index, rain cubics, wind direction)
             //depending on screen size - everything should be scrollable

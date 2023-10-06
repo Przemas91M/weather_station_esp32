@@ -16,8 +16,8 @@ class ForecastList extends StatelessWidget {
     ];
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
-      height: 200,
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      height: 110,
       child: ListView(scrollDirection: Axis.horizontal, children: [
         ...weatherForecast
             .map((data) => ForecastCard(

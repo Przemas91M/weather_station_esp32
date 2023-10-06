@@ -14,8 +14,9 @@ class ForecastCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
+      margin: const EdgeInsets.only(left: 5.0, bottom: 10.0, right: 5.0),
       padding: const EdgeInsets.all(10.0),
+      width: 80,
       decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: ColorPalette.midBlue, width: 3.0),
@@ -29,11 +30,12 @@ class ForecastCard extends StatelessWidget {
           ]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text(date),
-          const SizedBox(height: 5.0),
+          FittedBox(fit: BoxFit.scaleDown, child: Text(date)),
+          const SizedBox(height: 7.0),
           Icon(icon),
-          const SizedBox(height: 5.0),
+          const SizedBox(height: 7.0),
           Text('$temperature°C'),
         ],
       ),
