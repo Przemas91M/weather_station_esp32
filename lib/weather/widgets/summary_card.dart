@@ -26,6 +26,13 @@ class WeatherSummaryCard extends StatelessWidget {
         SizedBox(
           height: 5.0,
         ),
+        Icon(
+          Icons.sunny,
+          size: 30.0,
+        ),
+        SizedBox(
+          height: 5.0,
+        ),
         Text('Pogodnie'),
         SizedBox(
           height: 5.0,
