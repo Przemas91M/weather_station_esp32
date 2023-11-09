@@ -16,7 +16,7 @@ class StationReadingsCard extends StatelessWidget {
     DateTime readTimestamp = DateTime.fromMillisecondsSinceEpoch(
         (reading.timestamp /*+ dateTime.timeZoneOffset.inSeconds)*/ * 1000));
     return Container(
-      padding: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
@@ -57,6 +57,11 @@ class StationReadingsCard extends StatelessWidget {
               Text('${reading.insideTemperature}°C',
                   style: const TextStyle(fontSize: 18)),
             ]),
+          ]),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
               const BoxedIcon(
                 WeatherIcons.humidity,
@@ -64,17 +69,15 @@ class StationReadingsCard extends StatelessWidget {
               ),
               Text('${reading.humidity}%', style: const TextStyle(fontSize: 18))
             ]),
-          ]),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
               const BoxedIcon(WeatherIcons.barometer,
                   color: ColorPalette.yellow),
               Text('${reading.pressure.toStringAsPrecision(4)} hPa',
                   style: const TextStyle(fontSize: 18)),
             ]),
+          ]),
+          const SizedBox(height: 10),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
               const BoxedIcon(WeatherIcons.day_sunny,
                   color: ColorPalette.yellow),
@@ -82,33 +85,25 @@ class StationReadingsCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 18)),
             ]),
             Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const BoxedIcon(
+              const Icon(
                 Icons.lightbulb,
                 color: ColorPalette.yellow,
               ),
               Text('${reading.lux} lux', style: const TextStyle(fontSize: 18))
             ]),
           ]),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const BoxedIcon(WeatherIcons.barometer,
-                  color: ColorPalette.yellow),
-              Text('${reading.pressure.toStringAsPrecision(4)} hPa',
+              const Icon(Icons.battery_full, color: ColorPalette.yellow),
+              Text('${reading.batteryVoltage.toStringAsPrecision(3)} V',
                   style: const TextStyle(fontSize: 18)),
             ]),
             Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const BoxedIcon(WeatherIcons.day_sunny,
+              const BoxedIcon(WeatherIcons.solar_eclipse,
                   color: ColorPalette.yellow),
-              Text('UV${reading.uvIndex}',
+              Text('${reading.solarVoltage.toStringAsFixed(2)} V',
                   style: const TextStyle(fontSize: 18)),
-            ]),
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const BoxedIcon(
-                Icons.lightbulb,
-                color: ColorPalette.yellow,
-              ),
-              Text('${reading.lux} lux', style: const TextStyle(fontSize: 18))
             ]),
           ]),
           const SizedBox(height: 20),
