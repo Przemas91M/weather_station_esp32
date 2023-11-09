@@ -54,9 +54,6 @@ class _MainPageState extends State<MainPage> {
             slider: _Drawer(),
             appBar: AppBar(
               elevation: 5.0,
-              shape: const RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.vertical(bottom: Radius.circular(20))),
               backgroundColor: Colors.white,
               foregroundColor: ColorPalette.midBlue,
               shadowColor: ColorPalette.midBlue,
@@ -83,9 +80,13 @@ class _MainPageState extends State<MainPage> {
               centerTitle: true,
             ),
             child: Container(
-              color: Colors.transparent,
+              decoration: const BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                Colors.white,
+                Color.fromARGB(255, 208, 208, 208)
+              ], begin: Alignment.topCenter, end: Alignment.bottomRight)),
               padding: const EdgeInsets.only(
-                  left: 10.0, top: 10.0, right: 15.0, bottom: 10.0),
+                  left: 20.0, top: 10.0, right: 25.0, bottom: 10.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,8 +97,8 @@ class _MainPageState extends State<MainPage> {
                   ),
                   const SizedBox(height: 5.0),
                   //big widget showing current weather from station
-                  StationReadingsCard(reading: state.stationReadings.first),
-                  const SizedBox(height: 10.0),
+                  StationReadingsCard(reading: state.stationReadings.last),
+                  const SizedBox(height: 30.0),
                   const WeatherSummaryCard(),
                   const SizedBox(
                     height: 20.0,
