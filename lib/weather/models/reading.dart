@@ -9,7 +9,7 @@ class StationReading extends Equatable {
   final double pressure;
   final double solarVoltage;
   final double uvIndex;
-  final String timestamp;
+  final int timestamp;
 
   const StationReading(
       {required this.batteryVoltage,

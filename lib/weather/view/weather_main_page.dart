@@ -43,7 +43,9 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: BlocBuilder<WeatherBloc, WeatherState>(builder: (context, state) {
         if (state is WeatherLoading) {
-          return const CircularProgressIndicator(); // TODO add better loading animation
+          return const Center(
+              child:
+                  CircularProgressIndicator()); // TODO add better loading animation
         } else if (state is WeatherLoadError) {
           return const Text('App loading error!');
         } else if (state is WeatherLoadSuccess) {
@@ -94,7 +96,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   const SizedBox(height: 5.0),
                   //big widget showing current weather from station
-                  const StationReadingsCard(),
+                  StationReadingsCard(reading: state.stationReadings.first),
                   const SizedBox(height: 10.0),
                   const WeatherSummaryCard(),
                   const SizedBox(

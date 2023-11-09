@@ -15,12 +15,12 @@ class WeatherRepository {
             batteryVoltage: value[key]['BatteryVoltage'],
             humidity: value[key]['Humidity'],
             insideTemperature: value[key]['InsideTemp'],
-            lux: value[key]['Light'],
+            lux: value[key]['Light'] * 1.0,
             outsideTemperature: value[key]['OutsideTemp'],
             pressure: value[key]['Pressure'],
-            solarVoltage: value[key]['Pressure'],
-            uvIndex: value[key]['UV'],
-            timestamp: key.toString()));
+            solarVoltage: value[key]['SolarVoltage'],
+            uvIndex: value[key]['UV'] * 1.0 / 100,
+            timestamp: int.parse(key)));
       }
     } else {
       print('No data available!');
