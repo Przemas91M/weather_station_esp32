@@ -10,21 +10,21 @@ part 'weather_state.dart';
 class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   WeatherBloc({required WeatherRepository weatherRepository})
       : _weatherRepository = weatherRepository,
-        super(WeatherInitial()) {
+        super(WeatherLoading()) {
     on<InitializeWeather>(_initializeWeather);
   }
   final WeatherRepository _weatherRepository;
-  List<StationReading> stationReadings = [];
+  List<StationReading> _stationReadings = [];
 
   FutureOr<void> _initializeWeather(
       InitializeWeather event, Emitter<WeatherState> emit) async {
     emit(WeatherLoading());
-    stationReadings =
+    _stationReadings =
         await _weatherRepository.getReadingsOnce('Readings/Koszalin', 5);
-    if (stationReadings.isEmpty) {
+    if (_stationReadings.isEmpty) {
       emit(WeatherLoadError());
     } else {
-      emit(WeatherLoadSuccess());
+      emit(WeatherLoadSuccess(stationReadings: _stationReadings));
     }
   }
 }
