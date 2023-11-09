@@ -91,10 +91,6 @@ class _MainPageState extends State<MainPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Hello $username, here\'s your today weather:',
-                    textAlign: TextAlign.left,
-                  ),
                   const SizedBox(height: 5.0),
                   //big widget showing current weather from station
                   StationReadingsCard(reading: state.stationReadings.last),
