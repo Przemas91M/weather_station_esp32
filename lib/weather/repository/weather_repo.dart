@@ -24,8 +24,6 @@ class WeatherRepository {
             timestamp: int.parse(key)));
       }
       stationReadings.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    } else {
-      print('No data available!');
     }
     return stationReadings;
   }
