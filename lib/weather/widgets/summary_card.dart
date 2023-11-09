@@ -16,7 +16,11 @@ class WeatherSummaryCard extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: const [
-            BoxShadow(color: ColorPalette.midBlue, offset: Offset(5.0, 5.0))
+            BoxShadow(
+                color: ColorPalette.midBlue,
+                offset: Offset(0.0, 5.0),
+                blurRadius: 5.0,
+                blurStyle: BlurStyle.normal)
           ]),
       child: const Column(children: [
         Text(

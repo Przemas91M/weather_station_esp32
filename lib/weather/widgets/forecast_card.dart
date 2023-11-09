@@ -23,7 +23,7 @@ class ForecastCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: const [
             BoxShadow(
-                offset: Offset(5.0, 5.0),
+                offset: Offset(0.0, 5.0),
                 color: ColorPalette.midBlue,
                 blurStyle: BlurStyle.normal,
                 blurRadius: 5.0)

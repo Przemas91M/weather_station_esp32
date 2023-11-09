@@ -8,6 +8,8 @@ import 'package:weather_station_esp32/weather/widgets/summary_card.dart';
 
 import '../../bloc/app_bloc.dart';
 
+//TODO wrap this with app bloc for routing
+
 class WeatherMainPage extends StatefulWidget {
   const WeatherMainPage({super.key});
 
@@ -58,6 +60,7 @@ class _WeatherMainPageState extends State<WeatherMainPage> {
           centerTitle: true,
         ),
         child: Container(
+          color: Colors.transparent,
           padding: const EdgeInsets.only(
               left: 10.0, top: 10.0, right: 15.0, bottom: 10.0),
           child: Column(
