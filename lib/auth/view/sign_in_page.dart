@@ -88,7 +88,7 @@ class _SignInForm extends StatelessWidget {
                               context.read<AuthBloc>().add(SignInRequested()));
                     }
                   }),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [

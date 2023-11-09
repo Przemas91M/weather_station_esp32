@@ -32,6 +32,10 @@ class ElevatedTextInput extends StatelessWidget {
               BoxShadow(
                 color: ColorPalette.lightBlue,
                 offset: Offset(5.0, 5.0),
+              ),
+              BoxShadow(
+                color: ColorPalette.lightBlue,
+                offset: Offset(10.0, 10.0),
                 blurRadius: 5.0, //check the style
                 blurStyle: BlurStyle.normal,
               )

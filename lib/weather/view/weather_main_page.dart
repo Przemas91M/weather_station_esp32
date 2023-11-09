@@ -97,17 +97,24 @@ class _MainPageState extends State<MainPage> {
                   const SizedBox(height: 30.0),
                   const WeatherSummaryCard(),
                   const SizedBox(
-                    height: 20.0,
+                    height: 30.0,
                   ),
                   //second big widget with weather from forecast
                   //next a list with weather forecast for 7 days, depending on location selected
-                  const Text('7 day forecast:'),
+
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width / 3.5),
+                    child: const Text('7 day forecast:',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20)),
+                  ),
+                  const SizedBox(height: 5),
                   const ForecastList(),
                   //big cards with auxiliary readings (UV index, rain cubics, wind direction)
                   //depending on screen size - everything should be scrollable
                   const Text('Logged in as:'),
-                  Text(context.select((AppBloc bloc) =>
-                      bloc.state.user?.displayName ?? 'None')),
+                  Text(username),
                 ],
               ),
             ),

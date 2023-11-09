@@ -113,7 +113,7 @@ class _SignUpForm extends StatelessWidget {
                     ),
                     const SizedBox(height: 20.0),
                     AuthButton(textInput: 'Register', onTap: () {}),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [

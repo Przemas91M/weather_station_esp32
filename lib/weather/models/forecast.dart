@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class Forecast extends Equatable {
   final String date;
   final double temperature;
-  final IconData icon;
+  final Icon icon;
 
   const Forecast(
       {required this.date, required this.temperature, required this.icon});

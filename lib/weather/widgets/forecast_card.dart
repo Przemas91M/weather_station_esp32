@@ -4,7 +4,7 @@ import 'package:weather_station_esp32/style/color_palette.dart';
 class ForecastCard extends StatelessWidget {
   final String date;
   final double temperature;
-  final IconData icon;
+  final Icon icon;
   const ForecastCard(
       {required this.date,
       required this.temperature,
@@ -34,7 +34,7 @@ class ForecastCard extends StatelessWidget {
         children: [
           FittedBox(fit: BoxFit.scaleDown, child: Text(date)),
           const SizedBox(height: 7.0),
-          Icon(icon),
+          icon,
           const SizedBox(height: 7.0),
           Text('$temperature°C'),
         ],

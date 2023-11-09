@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/models/forecast.dart';
 import 'package:weather_station_esp32/weather/widgets/forecast_card.dart';
 
@@ -8,11 +9,26 @@ class ForecastList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Forecast> weatherForecast = [
-      const Forecast(date: 'Today', temperature: 23.0, icon: Icons.sunny),
-      const Forecast(date: 'Tuesday', temperature: 18.0, icon: Icons.cloud),
-      const Forecast(date: 'Wednesday', temperature: 19.0, icon: Icons.foggy),
-      const Forecast(date: 'Thursday', temperature: 16.0, icon: Icons.sunny),
-      const Forecast(date: 'Friday', temperature: 24.0, icon: Icons.sunny),
+      const Forecast(
+          date: 'Today',
+          temperature: 23.0,
+          icon: Icon(Icons.sunny, color: ColorPalette.yellow)),
+      const Forecast(
+          date: 'Tuesday',
+          temperature: 18.0,
+          icon: Icon(Icons.cloud, color: ColorPalette.midBlue)),
+      const Forecast(
+          date: 'Wednesday',
+          temperature: 19.0,
+          icon: Icon(Icons.foggy, color: ColorPalette.lightBlue)),
+      const Forecast(
+          date: 'Thursday',
+          temperature: 16.0,
+          icon: Icon(Icons.sunny, color: ColorPalette.yellow)),
+      const Forecast(
+          date: 'Friday',
+          temperature: 24.0,
+          icon: Icon(Icons.sunny, color: ColorPalette.yellow)),
     ];
 
     return Container(
