@@ -4,6 +4,7 @@ import 'package:weather_station_esp32/auth/repository/auth_repo.dart';
 import 'package:weather_station_esp32/auth/view/sign_in_page.dart';
 import 'package:weather_station_esp32/auth/view/sign_up_page.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
+import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 import 'package:weather_station_esp32/weather/view/weather_main_page.dart';
 
 import 'app_bloc.dart';
@@ -44,7 +45,10 @@ class AppView extends StatelessWidget {
                 bodyMedium: TextStyle(color: ColorPalette.midBlue))),
         home: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
           if (state is Authenticated) {
-            return const WeatherMainPage();
+            return RepositoryProvider(
+              create: (context) => WeatherRepository(),
+              child: const WeatherMainPage(),
+            );
           } else {
             return const SignInPage();
           }

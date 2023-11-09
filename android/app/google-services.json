@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "737590269295",
+    "firebase_url": "https://weather-station-esp32-bc66b-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "weather-station-esp32-bc66b",
     "storage_bucket": "weather-station-esp32-bc66b.appspot.com"
   },
@@ -29,6 +30,13 @@
             {
               "client_id": "737590269295-12lt76tdinlfnlr0il5qg6bsm093jqnr.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "737590269295-avnlp24e630fm76tfjkssuplo8jfm04s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.weatherStationEsp32"
+              }
             }
           ]
         }
