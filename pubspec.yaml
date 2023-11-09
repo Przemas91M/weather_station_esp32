@@ -36,6 +36,7 @@ dependencies:
   cloud_firestore:
   bloc:
   flutter_bloc:
+  weather_icons:
   equatable:
   intl: ^0.18.1
 
