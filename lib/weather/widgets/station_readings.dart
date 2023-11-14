@@ -40,8 +40,8 @@ class StationReadingsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text(
-            'Latest station readings',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            'Current weather',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 5),
           const Divider(color: Colors.black, height: 2.0),
@@ -67,31 +67,49 @@ class StationReadingsCard extends StatelessWidget {
             ),
             //TODO wrap this with gesture detector
             //show each parameter as a graph with latest readings
-            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                const BoxedIcon(WeatherIcons.humidity,
-                    color: ColorPalette.yellow),
-                Text('${reading.humidity.toStringAsFixed(1)} %')
-              ]),
-              const SizedBox(height: 5),
-              Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                const BoxedIcon(WeatherIcons.barometer,
-                    color: ColorPalette.yellow),
-                Text('${reading.pressure.toStringAsFixed(1)} hPa')
-              ]),
-              const SizedBox(height: 5),
-              Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                const BoxedIcon(WeatherIcons.sunrise,
-                    color: ColorPalette.yellow),
-                Text('UV: ${reading.uvIndex.toStringAsFixed(1)}')
-              ]),
-              const SizedBox(height: 5),
-              Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-                const BoxedIcon(WeatherIcons.humidity,
-                    color: ColorPalette.yellow),
-                Text('${reading.lux.toStringAsFixed(0)} LUX')
-              ]),
-            ])
+            Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // humidity reading
+                  Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const BoxedIcon(WeatherIcons.humidity,
+                            color: ColorPalette.yellow),
+                        Text('${reading.humidity.toStringAsFixed(1)} %')
+                      ]),
+                  const SizedBox(height: 5),
+                  // pressure reading
+                  Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const BoxedIcon(WeatherIcons.barometer,
+                            color: ColorPalette.yellow),
+                        Text('${reading.pressure.toStringAsFixed(1)} hPa')
+                      ]),
+                  const SizedBox(height: 5),
+                  //UV index reading
+                  Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const BoxedIcon(WeatherIcons.sunrise,
+                            color: ColorPalette.yellow),
+                        Text(' UV: ${reading.uvIndex.toStringAsFixed(1)}')
+                      ]),
+                  const SizedBox(height: 5),
+                  //LUX light reading
+                  Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 6.0),
+                          child:
+                              Icon(Icons.lightbulb, color: ColorPalette.yellow),
+                        ),
+                        Text('  ${reading.lux.toStringAsFixed(0)} LUX')
+                      ]),
+                ])
           ]),
           const SizedBox(height: 20),
           Text(
