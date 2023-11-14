@@ -1,13 +1,13 @@
 import 'dart:ui';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
-import 'package:weather_station_esp32/weather/widgets/forecast_card.dart';
+import 'package:weather_station_esp32/weather/widgets/battery_card.dart';
 import 'package:weather_station_esp32/weather/widgets/forecast_list.dart';
+import 'package:weather_station_esp32/weather/widgets/solar_card.dart';
 import 'package:weather_station_esp32/weather/widgets/station_readings.dart';
 import 'package:weather_station_esp32/weather/widgets/summary_card.dart';
 
@@ -39,40 +39,44 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     User user = context.select((AppBloc bloc) => bloc.state.user!);
 
-    return Scaffold(
-      body: BlocBuilder<WeatherBloc, WeatherState>(builder: (context, state) {
-        if (state is WeatherLoading) {
-          return const Center(
-              child:
-                  CircularProgressIndicator()); // TODO add better loading animation
-        } else if (state is WeatherLoadError) {
-          return const Text('App loading error!');
-        } else if (state is WeatherLoadSuccess) {
-          return Scaffold(
-            drawer: _Drawer(user: user), //TODO add drawer items and widgets
-            appBar: AppBar(
-              flexibleSpace: ClipRRect(
-                  child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10))),
-              elevation: 0,
-              backgroundColor: Colors.white,
-              foregroundColor: ColorPalette.midBlue,
-              actions: [
-                IconButton(
-                    onPressed: () =>
-                        context.read<AppBloc>().add(AppLogOutRequested()),
-                    icon: const Icon(Icons.exit_to_app))
-              ],
-              title: const Text(
-                'Koszalin',
-              ),
-              titleTextStyle: const TextStyle(
-                  color: ColorPalette.midBlue,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
-              centerTitle: true,
+    return BlocBuilder<WeatherBloc, WeatherState>(builder: (context, state) {
+      if (state is WeatherLoading) {
+        return const Scaffold(
+            body: Center(
+                child:
+                    CircularProgressIndicator())); // TODO add better loading animation
+      } else if (state is WeatherLoadError) {
+        return const Scaffold(
+            body: Center(
+                child:
+                    Text('App loading error!\n Check internet connection!')));
+      } else if (state is WeatherLoadSuccess) {
+        return Scaffold(
+          drawer: _Drawer(user: user), //TODO add drawer items and widgets
+          appBar: AppBar(
+            flexibleSpace: ClipRRect(
+                child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10))),
+            elevation: 0,
+            backgroundColor: Colors.white,
+            foregroundColor: ColorPalette.midBlue,
+            actions: [
+              IconButton(
+                  onPressed: () =>
+                      context.read<AppBloc>().add(AppLogOutRequested()),
+                  icon: const Icon(Icons.exit_to_app))
+            ],
+            title: const Text(
+              'Koszalin',
             ),
-            body: Container(
+            titleTextStyle: const TextStyle(
+                color: ColorPalette.midBlue,
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
+            centerTitle: true,
+          ),
+          body: SingleChildScrollView(
+            child: Container(
               decoration: const BoxDecoration(
                   gradient: LinearGradient(colors: [
                 Colors.white,
@@ -105,17 +109,26 @@ class _MainPageState extends State<MainPage> {
                   const SizedBox(height: 5),
                   const ForecastList(),
                   const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      BatteryCard(
+                          volts: state.stationReadings.last.batteryVoltage),
+                      SolarCard(volts: state.stationReadings.last.solarVoltage)
+                    ],
+                  ),
+
                   //big cards with auxiliary readings (UV index, rain cubics, wind direction)
                   //depending on screen size - everything should be scrollable
                 ],
               ),
             ),
-          );
-        } else {
-          return const Text('Unknown error!');
-        }
-      }),
-    );
+          ),
+        );
+      } else {
+        return const Text('Unknown error!');
+      }
+    });
   }
 }
 
