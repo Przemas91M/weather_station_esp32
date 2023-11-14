@@ -19,17 +19,17 @@ class StationReadingsCard extends StatelessWidget {
       padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(
+          /*border: Border.all(
             color: ColorPalette.lightBlue,
             width: 3.0,
-          ),
+          ),*/
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: const [
             BoxShadow(
                 color: ColorPalette.lightBlue,
-                offset: Offset(5.0, 5.0),
-                blurRadius: 10.0,
-                blurStyle: BlurStyle.normal),
+                //offset: Offset(5.0, 5.0),
+                blurRadius: 15.0,
+                blurStyle: BlurStyle.outer),
             /*BoxShadow(
               color: ColorPalette.lightBlue,
               offset: Offset(5.0, 5.0),*/
@@ -43,6 +43,7 @@ class StationReadingsCard extends StatelessWidget {
             'Latest station readings',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
+          const Divider(color: Colors.black, height: 2.0),
           const SizedBox(height: 10),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
