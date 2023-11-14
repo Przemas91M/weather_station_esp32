@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
@@ -49,14 +51,15 @@ class _MainPageState extends State<MainPage> {
         } else if (state is WeatherLoadError) {
           return const Text('App loading error!');
         } else if (state is WeatherLoadSuccess) {
-          return SliderDrawer(
-            key: _sliderDrawerKey,
-            slider: _Drawer(),
+          return Scaffold(
+            drawer: const _Drawer(), //TODO add drawer items and widgets
             appBar: AppBar(
-              elevation: 5.0,
+              flexibleSpace: ClipRRect(
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10))),
+              elevation: 0,
               backgroundColor: Colors.white,
               foregroundColor: ColorPalette.midBlue,
-              shadowColor: ColorPalette.midBlue,
               actions: [
                 IconButton(
                     onPressed: () =>
@@ -79,7 +82,7 @@ class _MainPageState extends State<MainPage> {
                   fontWeight: FontWeight.bold),
               centerTitle: true,
             ),
-            child: Container(
+            body: Container(
               decoration: const BoxDecoration(
                   gradient: LinearGradient(colors: [
                 Colors.white,
@@ -132,8 +135,8 @@ class _Drawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.red,
+    return const Drawer(
+      backgroundColor: ColorPalette.lightBlue,
     );
   }
 }

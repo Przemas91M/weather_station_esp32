@@ -10,21 +10,13 @@ class WeatherSummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(15.0),
       decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(
-            color: ColorPalette.lightBlue,
-            width: 3.0,
-          ),
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: const [
-            /*BoxShadow(
-              color: ColorPalette.lightBlue,
-              offset: Offset(5.0, 5.0),
-            ),*/
             BoxShadow(
                 color: ColorPalette.lightBlue,
-                offset: Offset(5.0, 5.0),
-                blurRadius: 10.0,
-                blurStyle: BlurStyle.normal)
+                //offset: Offset(5.0, 5.0),
+                blurRadius: 15.0,
+                blurStyle: BlurStyle.outer)
           ]),
       child: const Column(children: [
         Text(

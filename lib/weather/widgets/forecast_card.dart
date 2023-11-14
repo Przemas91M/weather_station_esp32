@@ -14,18 +14,19 @@ class ForecastCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 5.0, bottom: 10.0, right: 5.0),
+      margin:
+          const EdgeInsets.only(left: 5.0, bottom: 10.0, right: 5.0, top: 3.0),
       padding: const EdgeInsets.all(10.0),
       width: 80,
       decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: ColorPalette.midBlue, width: 3.0),
+          //border: Border.all(color: ColorPalette.midBlue, width: 3.0),
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: const [
             BoxShadow(
-                offset: Offset(0.0, 5.0),
+                //offset: Offset(0.0, 5.0),
                 color: ColorPalette.midBlue,
-                blurStyle: BlurStyle.normal,
+                blurStyle: BlurStyle.outer,
                 blurRadius: 5.0)
           ]),
       child: Column(
