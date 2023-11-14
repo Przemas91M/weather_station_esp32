@@ -1,11 +1,12 @@
 import 'dart:ui';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
+import 'package:weather_station_esp32/weather/widgets/forecast_card.dart';
 import 'package:weather_station_esp32/weather/widgets/forecast_list.dart';
 import 'package:weather_station_esp32/weather/widgets/station_readings.dart';
 import 'package:weather_station_esp32/weather/widgets/summary_card.dart';
@@ -34,13 +35,9 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final GlobalKey<SliderDrawerState> _sliderDrawerKey =
-      GlobalKey<SliderDrawerState>();
-
   @override
   Widget build(BuildContext context) {
-    String username = context
-        .select((AppBloc bloc) => bloc.state.user?.displayName ?? 'None');
+    User user = context.select((AppBloc bloc) => bloc.state.user!);
 
     return Scaffold(
       body: BlocBuilder<WeatherBloc, WeatherState>(builder: (context, state) {
@@ -52,7 +49,7 @@ class _MainPageState extends State<MainPage> {
           return const Text('App loading error!');
         } else if (state is WeatherLoadSuccess) {
           return Scaffold(
-            drawer: const _Drawer(), //TODO add drawer items and widgets
+            drawer: _Drawer(user: user), //TODO add drawer items and widgets
             appBar: AppBar(
               flexibleSpace: ClipRRect(
                   child: BackdropFilter(
@@ -66,13 +63,6 @@ class _MainPageState extends State<MainPage> {
                         context.read<AppBloc>().add(AppLogOutRequested()),
                     icon: const Icon(Icons.exit_to_app))
               ],
-              leading: IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () {
-                    setState(() {
-                      _sliderDrawerKey.currentState?.toggle();
-                    });
-                  }),
               title: const Text(
                 'Koszalin',
               ),
@@ -114,10 +104,9 @@ class _MainPageState extends State<MainPage> {
                   ),
                   const SizedBox(height: 5),
                   const ForecastList(),
+                  const SizedBox(height: 5),
                   //big cards with auxiliary readings (UV index, rain cubics, wind direction)
                   //depending on screen size - everything should be scrollable
-                  const Text('Logged in as:'),
-                  Text(username),
                 ],
               ),
             ),
@@ -131,12 +120,71 @@ class _MainPageState extends State<MainPage> {
 }
 
 class _Drawer extends StatelessWidget {
-  const _Drawer();
+  const _Drawer({Key? key, required this.user}) : super(key: key);
+
+  final User? user;
 
   @override
   Widget build(BuildContext context) {
-    return const Drawer(
-      backgroundColor: ColorPalette.lightBlue,
+    return Drawer(
+      backgroundColor: Colors.white,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+              decoration: BoxDecoration(color: ColorPalette.lightBlue),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                      radius: 40.0,
+                      backgroundColor: Colors.white,
+                      child: Text(
+                        user!.displayName?.substring(0, 1) ?? 'U',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 36.0,
+                            color: ColorPalette.lightBlue),
+                      )),
+                  const SizedBox(height: 5),
+                  Text(
+                    user!.displayName ?? 'None',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    user!.email ?? 'None',
+                    style: const TextStyle(color: Colors.white, fontSize: 16.0),
+                  )
+                ],
+              )),
+          ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home',
+                  style: TextStyle(color: ColorPalette.lightBlue)),
+              onTap: () {
+                Navigator.pop(context);
+              }),
+          ListTile(
+            leading: const Icon(Icons.location_city),
+            title: const Text('Location 1',
+                style: TextStyle(color: ColorPalette.lightBlue)),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          const Divider(
+            height: 2.0,
+            color: ColorPalette.darkBlue,
+          ),
+          ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Log out',
+                  style: TextStyle(color: ColorPalette.lightBlue)),
+              onTap: () {
+                Navigator.pop(context);
+              })
+        ],
+      ),
     );
   }
 }
