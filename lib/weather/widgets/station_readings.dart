@@ -43,64 +43,55 @@ class StationReadingsCard extends StatelessWidget {
             'Latest station readings',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 5),
           const Divider(color: Colors.black, height: 2.0),
           const SizedBox(height: 10),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const Icon(Icons.landscape, color: ColorPalette.yellow),
-              const SizedBox(width: 5),
-              Text('${reading.outsideTemperature}°C',
-                  style: const TextStyle(fontSize: 18)),
-            ]),
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const Icon(Icons.house_rounded, color: ColorPalette.yellow),
-              const SizedBox(width: 5),
-              Text('${reading.insideTemperature}°C',
-                  style: const TextStyle(fontSize: 18)),
-            ]),
-          ]),
-          const SizedBox(height: 10),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const BoxedIcon(WeatherIcons.humidity,
-                  color: ColorPalette.yellow),
-              Text('${reading.humidity}%', style: const TextStyle(fontSize: 18))
-            ]),
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const BoxedIcon(WeatherIcons.barometer,
-                  color: ColorPalette.yellow),
-              Text('${reading.pressure.toStringAsPrecision(4)} hPa',
-                  style: const TextStyle(fontSize: 18)),
-            ]),
-          ]),
-          const SizedBox(height: 10),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const Icon(Icons.sunny, color: ColorPalette.yellow),
-              const SizedBox(width: 5),
-              Text('UV${reading.uvIndex}',
-                  style: const TextStyle(fontSize: 18)),
-            ]),
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const Icon(Icons.lightbulb, color: ColorPalette.yellow),
-              const SizedBox(width: 5),
-              Text('${reading.lux} lux', style: const TextStyle(fontSize: 18))
-            ]),
-          ]),
-          const SizedBox(height: 15),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const Icon(Icons.battery_full, color: ColorPalette.yellow),
-              const SizedBox(width: 5),
-              Text('${reading.batteryVoltage.toStringAsPrecision(3)} V',
-                  style: const TextStyle(fontSize: 18)),
-            ]),
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              const Icon(Icons.solar_power, color: ColorPalette.yellow),
-              const SizedBox(width: 5),
-              Text('${reading.solarVoltage.toStringAsFixed(2)} V',
-                  style: const TextStyle(fontSize: 18)),
-            ]),
+            //TODO Wrap this with Gesture Detector and show details after tap
+            //(show graph with reading history!)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('${reading.insideTemperature}°C',
+                    style: const TextStyle(fontSize: 24.0)),
+                const SizedBox(height: 15),
+                const Icon(
+                  Icons.sunny,
+                  size: 35,
+                  color: ColorPalette.yellow,
+                ),
+                const SizedBox(height: 15),
+                const Text('Sunny', style: TextStyle(fontSize: 24.0))
+              ],
+            ),
+            //TODO wrap this with gesture detector
+            //show each parameter as a graph with latest readings
+            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+              Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                const BoxedIcon(WeatherIcons.humidity,
+                    color: ColorPalette.yellow),
+                Text('${reading.humidity.toStringAsFixed(1)} %')
+              ]),
+              const SizedBox(height: 5),
+              Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                const BoxedIcon(WeatherIcons.barometer,
+                    color: ColorPalette.yellow),
+                Text('${reading.pressure.toStringAsFixed(1)} hPa')
+              ]),
+              const SizedBox(height: 5),
+              Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                const BoxedIcon(WeatherIcons.sunrise,
+                    color: ColorPalette.yellow),
+                Text('UV: ${reading.uvIndex.toStringAsFixed(1)}')
+              ]),
+              const SizedBox(height: 5),
+              Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                const BoxedIcon(WeatherIcons.humidity,
+                    color: ColorPalette.yellow),
+                Text('${reading.lux.toStringAsFixed(0)} LUX')
+              ]),
+            ])
           ]),
           const SizedBox(height: 20),
           Text(
