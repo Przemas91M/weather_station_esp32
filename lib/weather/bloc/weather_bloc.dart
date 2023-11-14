@@ -19,6 +19,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   FutureOr<void> _initializeWeather(
       InitializeWeather event, Emitter<WeatherState> emit) async {
     emit(WeatherLoading());
+    _weatherRepository.getCurrentWeather('Koszalin');
     _stationReadings =
         await _weatherRepository.getReadingsOnce('Readings/Koszalin', 5);
     if (_stationReadings.isEmpty) {
