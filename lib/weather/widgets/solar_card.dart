@@ -32,10 +32,10 @@ class SolarCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: const [
             BoxShadow(
-                //offset: Offset(0.0, 5.0),
+                offset: Offset(3.0, 3.0),
                 color: ColorPalette.midBlue,
                 blurStyle: BlurStyle.outer,
-                blurRadius: 5.0)
+                blurRadius: 0.0)
           ]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
