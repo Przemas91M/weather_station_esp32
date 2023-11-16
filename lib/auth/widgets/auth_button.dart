@@ -15,13 +15,13 @@ class AuthButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 15.0),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: ColorPalette.midBlue, width: 2.0),
+            border: Border.all(color: ColorPalette.midBlue, width: 1.0),
             color: ColorPalette.yellow,
             boxShadow: const [
               BoxShadow(
                   color: ColorPalette.lightBlue,
-                  offset: Offset(5.0, 5.0),
-                  blurRadius: 10.0,
+                  //offset: Offset(5.0, 5.0),
+                  blurRadius: 5.0,
                   blurStyle: BlurStyle.normal)
             ]),
         child: Center(
