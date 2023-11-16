@@ -33,6 +33,7 @@ class AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
         routes: {
           '/signIn': (context) => const SignInPage(),
           '/signUp': (context) => const SignUpPage(),
