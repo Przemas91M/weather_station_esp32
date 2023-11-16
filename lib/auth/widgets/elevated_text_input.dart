@@ -25,14 +25,14 @@ class ElevatedTextInput extends StatelessWidget {
     return Container(
         padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
         decoration: BoxDecoration(
-            border: Border.all(color: ColorPalette.midBlue, width: 2.0),
+            border: Border.all(color: ColorPalette.midBlue, width: 1.0),
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
             boxShadow: const [
               BoxShadow(
                 color: ColorPalette.lightBlue,
-                offset: Offset(5.0, 5.0),
-                blurRadius: 10.0, //check the style
+                //offset: Offset(5.0, 5.0),
+                blurRadius: 4.0, //check the style
                 blurStyle: BlurStyle.normal,
               )
             ]),
