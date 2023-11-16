@@ -6,7 +6,7 @@ import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 import 'package:weather_station_esp32/weather/widgets/battery_card.dart';
-import 'package:weather_station_esp32/weather/widgets/forecast_list.dart';
+import 'package:weather_station_esp32/weather/widgets/forecast_horizontal_list.dart';
 import 'package:weather_station_esp32/weather/widgets/solar_card.dart';
 import 'package:weather_station_esp32/weather/widgets/station_readings.dart';
 import 'package:weather_station_esp32/weather/widgets/summary_card.dart';
@@ -20,8 +20,8 @@ class WeatherMainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          WeatherBloc(weatherRepository: context.read<WeatherRepository>())
-            ..add(InitializeWeather()),
+          WeatherBloc(weatherRepository: context.read<WeatherRepository>()),
+      //..add(InitializeWeather()),
       child: const MainPage(),
     );
   }
@@ -37,7 +37,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    User user = context.select((AppBloc bloc) => bloc.state.user!);
+    User? user = context.select((AppBloc bloc) => bloc.state.user);
 
     return BlocBuilder<WeatherBloc, WeatherState>(builder: (context, state) {
       if (state is WeatherLoading) {
@@ -77,11 +77,11 @@ class _MainPageState extends State<MainPage> {
           ),
           body: SingleChildScrollView(
             child: Container(
-              decoration: const BoxDecoration(
-                  gradient: LinearGradient(colors: [
-                Colors.white,
-                Color.fromARGB(255, 208, 208, 208)
-              ], begin: Alignment.topCenter, end: Alignment.bottomRight)),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [Colors.grey.shade300, Colors.grey.shade300],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomRight)),
               padding: const EdgeInsets.only(
                   left: 20.0, top: 10.0, right: 25.0, bottom: 10.0),
               child: Column(
@@ -90,7 +90,9 @@ class _MainPageState extends State<MainPage> {
                 children: [
                   const SizedBox(height: 5.0),
                   //big widget showing current weather from station
-                  StationReadingsCard(reading: state.stationReadings.last),
+                  StationReadingsCard(
+                      currentWeather: state.currentWeather,
+                      reading: state.stationReadings.last),
                   const SizedBox(height: 30.0),
                   const WeatherSummaryCard(),
                   const SizedBox(
@@ -107,7 +109,9 @@ class _MainPageState extends State<MainPage> {
                             fontWeight: FontWeight.bold, fontSize: 20)),
                   ),
                   const SizedBox(height: 5),
-                  const ForecastList(),
+                  ForecastHorizontalList(
+                    forecastList: state.forecastList,
+                  ),
                   const SizedBox(height: 5),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -195,6 +199,7 @@ class _Drawer extends StatelessWidget {
                   style: TextStyle(color: ColorPalette.lightBlue)),
               onTap: () {
                 Navigator.pop(context);
+                context.read<AppBloc>().add(AppLogOutRequested());
               })
         ],
       ),
