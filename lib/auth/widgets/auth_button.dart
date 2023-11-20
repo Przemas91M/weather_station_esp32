@@ -20,8 +20,8 @@ class AuthButton extends StatelessWidget {
             boxShadow: const [
               BoxShadow(
                   color: ColorPalette.lightBlue,
-                  //offset: Offset(5.0, 5.0),
-                  blurRadius: 5.0,
+                  offset: Offset(3.0, 3.0),
+                  blurRadius: 0.0,
                   blurStyle: BlurStyle.normal)
             ]),
         child: Center(
