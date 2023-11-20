@@ -39,100 +39,104 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     User? user = context.select((AppBloc bloc) => bloc.state.user);
 
-    return BlocBuilder<WeatherBloc, WeatherState>(builder: (context, state) {
-      if (state is WeatherLoading) {
-        return const Scaffold(
-            body: Center(
-                child:
-                    CircularProgressIndicator())); // TODO add better loading animation
-      } else if (state is WeatherLoadError) {
-        return const Scaffold(
-            body: Center(
-                child:
-                    Text('App loading error!\n Check internet connection!')));
-      } else if (state is WeatherLoadSuccess) {
-        return Scaffold(
-          drawer: _Drawer(user: user), //TODO add drawer items and widgets
-          appBar: AppBar(
-            flexibleSpace: ClipRRect(
-                child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10))),
-            elevation: 0,
-            backgroundColor: Colors.white,
-            foregroundColor: ColorPalette.midBlue,
-            actions: [
-              IconButton(
-                  onPressed: () =>
-                      context.read<AppBloc>().add(AppLogOutRequested()),
-                  icon: const Icon(Icons.exit_to_app))
-            ],
-            title: const Text(
-              'Koszalin',
-            ),
-            titleTextStyle: const TextStyle(
-                color: ColorPalette.midBlue,
-                fontSize: 20,
-                fontWeight: FontWeight.bold),
-            centerTitle: true,
-          ),
-          body: SingleChildScrollView(
-            child: Container(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [Colors.grey.shade300, Colors.grey.shade300],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomRight)),
-              padding: const EdgeInsets.only(
-                  left: 20.0, top: 10.0, right: 25.0, bottom: 10.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 5.0),
-                  //big widget showing current weather from station
-                  StationReadingsCard(
-                      currentWeather: state.currentWeather,
-                      reading: state.stationReadings.last),
-                  const SizedBox(height: 30.0),
-                  const WeatherSummaryCard(),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  //second big widget with weather from forecast
-                  //next a list with weather forecast for 7 days, depending on location selected
-
-                  Padding(
-                    padding: EdgeInsets.only(
-                        left: MediaQuery.of(context).size.width / 3.5),
-                    child: const Text('7 day forecast:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20)),
-                  ),
-                  const SizedBox(height: 5),
-                  ForecastHorizontalList(
-                    forecastList: state.forecastList,
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return BlocBuilder<WeatherBloc, WeatherState>(
+        bloc: context.read<WeatherBloc>(),
+        builder: (context, state) {
+          if (state.status == WeatherStatus.loading) {
+            return const Scaffold(
+                body: Center(
+                    child:
+                        CircularProgressIndicator())); // TODO add better loading animation
+          } else if (state.status == WeatherStatus.error) {
+            return const Scaffold(
+                body: Center(
+                    child: Text(
+                        'App loading error!\n Check internet connection!')));
+          } else if (state.status == WeatherStatus.loaded) {
+            return Scaffold(
+              drawer: _Drawer(user: user), //TODO add drawer items and widgets
+              appBar: AppBar(
+                flexibleSpace: ClipRRect(
+                    child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10))),
+                elevation: 0,
+                backgroundColor: Colors.white,
+                foregroundColor: ColorPalette.midBlue,
+                actions: [
+                  IconButton(
+                      onPressed: () =>
+                          context.read<AppBloc>().add(AppLogOutRequested()),
+                      icon: const Icon(Icons.exit_to_app))
+                ],
+                title: const Text(
+                  'Koszalin',
+                ),
+                titleTextStyle: const TextStyle(
+                    color: ColorPalette.midBlue,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
+                centerTitle: true,
+              ),
+              body: SingleChildScrollView(
+                child: Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: [Colors.grey.shade300, Colors.grey.shade300],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomRight)),
+                  padding: const EdgeInsets.only(
+                      left: 20.0, top: 10.0, right: 25.0, bottom: 10.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BatteryCard(
-                          volts: state.stationReadings.last.batteryVoltage),
-                      SolarCard(volts: state.stationReadings.last.solarVoltage)
+                      const SizedBox(height: 5.0),
+                      //big widget showing current weather from station
+                      StationReadingsCard(
+                          currentWeather: state.currentWeather!,
+                          reading: state.stationReadings!.last),
+                      const SizedBox(height: 30.0),
+                      const WeatherSummaryCard(),
+                      const SizedBox(
+                        height: 30.0,
+                      ),
+                      //second big widget with weather from forecast
+                      //next a list with weather forecast for 7 days, depending on location selected
+
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: MediaQuery.of(context).size.width / 3.5),
+                        child: const Text('7 day forecast:',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20)),
+                      ),
+                      const SizedBox(height: 5),
+                      ForecastHorizontalList(
+                        forecastList: state.weatherForecast!,
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          BatteryCard(
+                              volts:
+                                  state.stationReadings!.last.batteryVoltage),
+                          SolarCard(
+                              volts: state.stationReadings!.last.solarVoltage)
+                        ],
+                      ),
+
+                      //big cards with auxiliary readings (UV index, rain cubics, wind direction)
+                      //depending on screen size - everything should be scrollable
                     ],
                   ),
-
-                  //big cards with auxiliary readings (UV index, rain cubics, wind direction)
-                  //depending on screen size - everything should be scrollable
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      } else {
-        return const Text('Unknown error!');
-      }
-    });
+            );
+          } else {
+            return const Text('Unknown error!');
+          }
+        });
   }
 }
 
