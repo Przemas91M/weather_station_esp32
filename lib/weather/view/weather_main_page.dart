@@ -5,12 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/style/color_palette.dart';
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
-import 'package:weather_station_esp32/weather/widgets/battery_card.dart';
-import 'package:weather_station_esp32/weather/widgets/forecast_horizontal_list.dart';
-import 'package:weather_station_esp32/weather/widgets/solar_card.dart';
-import 'package:weather_station_esp32/weather/widgets/station_readings.dart';
-import 'package:weather_station_esp32/weather/widgets/summary_card.dart';
 
+import '../../settings/bloc/settings_bloc.dart';
+import '../../weather/widgets/widgets.dart';
 import '../../bloc/app_bloc.dart';
 
 class WeatherMainPage extends StatelessWidget {
@@ -19,7 +16,7 @@ class WeatherMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
+      create: (context) =>
           WeatherBloc(weatherRepository: context.read<WeatherRepository>()),
       //..add(InitializeWeather()),
       child: const MainPage(),
@@ -38,46 +35,50 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     User? user = context.select((AppBloc bloc) => bloc.state.user);
+    bool temperatureUnits =
+        context.watch<SettingsBloc>().settingsMap['celsius'] ?? true;
+    bool windSpeedUnits =
+        context.watch<SettingsBloc>().settingsMap['kilometers'] ?? true;
+    bool precipUnits =
+        context.watch<SettingsBloc>().settingsMap['milimeters'] ?? true;
 
-    return BlocBuilder<WeatherBloc, WeatherState>(
-        bloc: context.read<WeatherBloc>(),
-        builder: (context, state) {
-          if (state.status == WeatherStatus.loading) {
-            return const Scaffold(
-                body: Center(
-                    child:
-                        CircularProgressIndicator())); // TODO add better loading animation
-          } else if (state.status == WeatherStatus.error) {
-            return const Scaffold(
-                body: Center(
-                    child: Text(
-                        'App loading error!\n Check internet connection!')));
-          } else if (state.status == WeatherStatus.loaded) {
-            return Scaffold(
-              drawer: _Drawer(user: user), //TODO add drawer items and widgets
-              appBar: AppBar(
-                flexibleSpace: ClipRRect(
-                    child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10))),
-                elevation: 0,
-                backgroundColor: Colors.white,
-                foregroundColor: ColorPalette.midBlue,
-                actions: [
-                  IconButton(
-                      onPressed: () =>
-                          context.read<AppBloc>().add(AppLogOutRequested()),
-                      icon: const Icon(Icons.exit_to_app))
-                ],
-                title: const Text(
-                  'Koszalin',
-                ),
-                titleTextStyle: const TextStyle(
-                    color: ColorPalette.midBlue,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
-                centerTitle: true,
-              ),
-              body: SingleChildScrollView(
+    return Scaffold(
+      drawer: _Drawer(user: user), //TODO add drawer items and widgets
+      appBar: AppBar(
+        flexibleSpace: ClipRRect(
+            child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10))),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: ColorPalette.midBlue,
+        actions: [
+          IconButton(
+              onPressed: () =>
+                  context.read<AppBloc>().add(AppLogOutRequested()),
+              icon: const Icon(Icons.exit_to_app))
+        ],
+        title: const Text(
+          'Koszalin',
+        ),
+        titleTextStyle: const TextStyle(
+            color: ColorPalette.midBlue,
+            fontSize: 20,
+            fontWeight: FontWeight.bold),
+        centerTitle: true,
+      ),
+      body: BlocBuilder<WeatherBloc, WeatherState>(
+          bloc: context.read<WeatherBloc>(),
+          builder: (context, state) {
+            if (state.status == WeatherStatus.loading) {
+              return const Center(
+                  child:
+                      CircularProgressIndicator()); // TODO add better loading animation
+            } else if (state.status == WeatherStatus.error) {
+              return const Center(
+                  child:
+                      Text('App loading error!\n Check internet connection!'));
+            } else if (state.status == WeatherStatus.loaded) {
+              return SingleChildScrollView(
                 child: Container(
                   decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -93,10 +94,16 @@ class _MainPageState extends State<MainPage> {
                       const SizedBox(height: 5.0),
                       //big widget showing current weather from station
                       StationReadingsCard(
-                          currentWeather: state.currentWeather!,
-                          reading: state.stationReadings!.last),
+                        currentWeather: state.currentWeather!,
+                        reading: state.stationReadings!.last,
+                        temperatureUnits: temperatureUnits,
+                      ),
                       const SizedBox(height: 30.0),
-                      const WeatherSummaryCard(),
+                      TodaySummaryCard(
+                          today: state.weatherForecast?.last,
+                          rainUnits: precipUnits,
+                          temperatureUnits: temperatureUnits,
+                          windUnits: windSpeedUnits),
                       const SizedBox(
                         height: 30.0,
                       ),
@@ -113,10 +120,11 @@ class _MainPageState extends State<MainPage> {
                       const SizedBox(height: 5),
                       ForecastHorizontalList(
                         forecastList: state.weatherForecast!,
+                        temperatureUnits: temperatureUnits,
                       ),
                       const SizedBox(height: 5),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           BatteryCard(
                               volts:
@@ -131,12 +139,12 @@ class _MainPageState extends State<MainPage> {
                     ],
                   ),
                 ),
-              ),
-            );
-          } else {
-            return const Text('Unknown error!');
-          }
-        });
+              );
+            } else {
+              return const Center(child: Text('Unknown error!'));
+            }
+          }),
+    );
   }
 }
 
@@ -153,7 +161,7 @@ class _Drawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-              decoration: BoxDecoration(color: ColorPalette.lightBlue),
+              decoration: const BoxDecoration(color: ColorPalette.lightBlue),
               child: Column(
                 children: [
                   CircleAvatar(
@@ -186,8 +194,8 @@ class _Drawer extends StatelessWidget {
                 Navigator.pop(context);
               }),
           ListTile(
-            leading: const Icon(Icons.location_city),
-            title: const Text('Location 1',
+            leading: const Icon(Icons.location_on),
+            title: const Text('Koszalin',
                 style: TextStyle(color: ColorPalette.lightBlue)),
             onTap: () {
               Navigator.pop(context);
@@ -196,6 +204,15 @@ class _Drawer extends StatelessWidget {
           const Divider(
             height: 2.0,
             color: ColorPalette.darkBlue,
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings',
+                style: TextStyle(color: ColorPalette.lightBlue)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/settings');
+            },
           ),
           ListTile(
               leading: const Icon(Icons.logout),
