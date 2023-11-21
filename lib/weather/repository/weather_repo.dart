@@ -9,7 +9,7 @@ import "package:weather_station_esp32/weather/models/weather_condition.dart";
 import "../models/forecast.dart";
 
 class WeatherRepository {
-  String openWeatherAPI = 'eb4f9d0a14c5403fba4202400231411';
+  String openWeatherAPI = 'api key';
   FirebaseDatabase database = FirebaseDatabase.instance;
   List<dynamic> forecast = [];
 
