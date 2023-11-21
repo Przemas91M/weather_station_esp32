@@ -18,6 +18,7 @@ class Forecast extends Equatable {
   final double totalPrecipMM;
   final double totalPrecipIN;
   final double avgHumidity;
+  final double uvIndex;
   final WeatherCondition condition;
   final List<Map<String, dynamic>> hourlyTempC;
   final List<Map<String, dynamic>> hourlyTempF;
@@ -40,6 +41,7 @@ class Forecast extends Equatable {
     required this.totalPrecipMM,
     required this.totalPrecipIN,
     required this.avgHumidity,
+    required this.uvIndex,
     required this.condition,
     required this.hourlyTempC,
     required this.hourlyTempF,
@@ -63,6 +65,7 @@ class Forecast extends Equatable {
         totalPrecipMM,
         totalPrecipIN,
         avgHumidity,
+        uvIndex,
         condition,
         hourlyTempC,
         hourlyTempF,
