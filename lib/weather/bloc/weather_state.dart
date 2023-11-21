@@ -37,5 +37,6 @@ class WeatherState extends Equatable {
           weatherForecast: weatherForecast ?? this.weatherForecast);
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props =>
+      [status, currentWeather, stationReadings, weatherForecast];
 }
