@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_icons/weather_icons.dart';
-import 'package:weather_station_esp32/style/color_palette.dart';
+
+import '../../style/styling.dart';
 
 class ForecastCard extends StatelessWidget {
   final int dateEpoch;
   final double temperature;
   final IconData icon;
+  final bool temperatureUnits;
   const ForecastCard(
       {required this.dateEpoch,
       required this.temperature,
       required this.icon,
+      required this.temperatureUnits,
       super.key});
 
   @override
@@ -35,14 +38,7 @@ class ForecastCard extends StatelessWidget {
           color: Colors.white,
           //border: Border.all(color: ColorPalette.midBlue, width: 3.0),
           borderRadius: BorderRadius.circular(15.0),
-          border: Border.all(color: ColorPalette.lightBlue, width: 1.0),
-          boxShadow: const [
-            BoxShadow(
-                offset: Offset(3.0, 3.0),
-                color: ColorPalette.midBlue,
-                blurStyle: BlurStyle.outer,
-                blurRadius: 0.0)
-          ]),
+          border: CardStyle.thinBorder()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +54,7 @@ class ForecastCard extends StatelessWidget {
             size: 36,
           ),
           const SizedBox(height: 10.0),
-          Text('$temperature°C'),
+          Text('$temperature${temperatureUnits ? '°C' : ' F'}'),
         ],
       ),
     );
