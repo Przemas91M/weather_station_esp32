@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:weather_station_esp32/weather/models/forecast.dart';
-import 'package:weather_station_esp32/weather/widgets/forecast_card.dart';
+import '../../weather/models/models.dart';
+import '../../weather/widgets/widgets.dart';
 
 class ForecastHorizontalList extends StatelessWidget {
   final List<Forecast> forecastList;
-  const ForecastHorizontalList({super.key, required this.forecastList});
+  final bool temperatureUnits;
+  const ForecastHorizontalList(
+      {super.key, required this.forecastList, required this.temperatureUnits});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,8 @@ class ForecastHorizontalList extends StatelessWidget {
       child: ListView(scrollDirection: Axis.horizontal, children: [
         ...forecastList.map((data) => ForecastCard(
             dateEpoch: data.dateEpoch,
-            temperature: data.avgTempC,
+            temperature: temperatureUnits ? data.avgTempC : data.avgTempF,
+            temperatureUnits: temperatureUnits,
             icon: data.condition.icon))
       ]),
     );
