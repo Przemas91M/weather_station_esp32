@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:weather_station_esp32/style/color_palette.dart';
+
+import '../../style/styling.dart';
 
 class SolarCard extends StatelessWidget {
   final double volts;
@@ -11,7 +12,7 @@ class SolarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int charging = (((volts - 3.75) * 100) ~/ (6.4 - 3.75)).toInt();
+    int charging = (((volts - 3.75) * 100) ~/ (6.48 - 3.75)).ceil();
     String level = 'Low';
     switch (charging) {
       case > 0:
@@ -28,15 +29,8 @@ class SolarCard extends StatelessWidget {
       width: 150,
       decoration: BoxDecoration(
           color: Colors.white,
-          //border: Border.all(color: ColorPalette.midBlue, width: 3.0),
-          borderRadius: BorderRadius.circular(15.0),
-          boxShadow: const [
-            BoxShadow(
-                offset: Offset(3.0, 3.0),
-                color: ColorPalette.midBlue,
-                blurStyle: BlurStyle.outer,
-                blurRadius: 0.0)
-          ]),
+          border: CardStyle.thinBorder(),
+          borderRadius: BorderRadius.circular(15.0)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
