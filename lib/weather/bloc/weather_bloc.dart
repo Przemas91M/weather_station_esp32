@@ -12,16 +12,15 @@ part 'weather_event.dart';
 part 'weather_state.dart';
 
 class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
-  WeatherBloc({required WeatherRepository weatherRepository})
-      : _weatherRepository = weatherRepository,
-        super(WeatherState.initial()) {
+  WeatherBloc({required this.weatherRepository})
+      : super(WeatherState.initial()) {
     on<StationDataChanged>(_stationDataChanged);
     //subscribe to database stream - create new stream for each station - maybe do this in a initialisation event?
-    _databaseSubscription = _weatherRepository
+    _databaseSubscription = weatherRepository
         .databaseDataChanged('Koszalin', 10)
         .listen((data) => add(StationDataChanged(data: data)));
   }
-  final WeatherRepository _weatherRepository;
+  final WeatherRepository weatherRepository;
   late final StreamSubscription<List<StationReading>> _databaseSubscription;
 
   FutureOr<void> _stationDataChanged(
@@ -29,10 +28,11 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     //emit(WeatherUpdateLoading()); - think about this!
     emit(state.copyWith(status: WeatherStatus.loading));
     CurrentWeather currentWeather =
-        await _weatherRepository.getCurrentWeather('Koszalin');
+        await weatherRepository.getCurrentWeather('Koszalin');
     List<Forecast> weatherForecast =
-        _weatherRepository.getWeatherForecast('Koszalin');
+        weatherRepository.getWeatherForecast('Koszalin');
     emit(state.copyWith(
+        status: WeatherStatus.loaded,
         stationReadings: event.data,
         currentWeather: currentWeather,
         weatherForecast: weatherForecast));
