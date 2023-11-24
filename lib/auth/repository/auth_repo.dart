@@ -1,15 +1,18 @@
 //wywolanie funkcji odpowiedzialnych za zalogowanie sie i zwrocenie danych
 //wywolanie funkcji pobierajacych dane uzytkownikow i zwracajace bledy
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository {
   // ignore: prefer_final_fields
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  //final AuthService _authService = AuthService();
+  FirebaseAuth _auth =
+      FirebaseAuth.instance; //reference to firebase authentication
+  CollectionReference users = FirebaseFirestore.instance
+      .collection('users'); // reference to database containing user data
 
   Stream<User?> get userStream {
-    return _auth.authStateChanges();
+    return _auth.userChanges();
   }
 
   Future<void> logOut() async {
@@ -39,9 +42,23 @@ class AuthRepository {
       if (_auth.currentUser!.displayName == null) {
         await _auth.currentUser!.updateDisplayName(displayName);
       }
+      await _createUserData(
+          displayName: _auth.currentUser!.displayName!,
+          uid: _auth.currentUser!.uid);
+      await _auth.currentUser!.reload();
+      //now create user data in firestore
     } on FirebaseAuthException catch (e) {
       throw SignUpEmailPasswordError.fromCode(e.code);
     }
+  }
+
+  Future<void> _createUserData(
+      {required String displayName, required String uid}) async {
+    await users
+        .doc(uid)
+        .set({'Name': displayName, 'cities': []})
+        .then((value) => print("User Data added!"))
+        .catchError((error) => print('Failed to add user data: $error'));
   }
 }
 
