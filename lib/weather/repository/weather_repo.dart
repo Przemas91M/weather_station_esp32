@@ -5,7 +5,7 @@ import "package:http/http.dart" as http;
 import "package:weather_station_esp32/weather/models/models.dart";
 
 class WeatherRepository {
-  String openWeatherAPI = 'eb4f9d0a14c5403fba4202400231411';
+  String openWeatherAPI = 'api key';
   FirebaseDatabase database = FirebaseDatabase.instance;
   List<dynamic> forecast = [];
 
