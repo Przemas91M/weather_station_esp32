@@ -1,0 +1,32 @@
+{
+    "currentWeather": "Current weather",
+    "updated": "Updated",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "battery": "Battery",
+    "solarCell": "Solar Cell",
+    "weatherForecast": "7 day forecast",
+    "settings": "Settings",
+    "logout": "Log out",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "tempUnits": "Temperature units",
+    "windUnits": "Wind speed units",
+    "precipUnits": "Precipation units",
+    "emailInput": "Enter your email address.",
+    "passwordInput": "Minimum 8 characters.",
+    "password": "Password",
+    "passwordRepeat": "Repeat password.",
+    "passwordRepeatDescription": "Passwords must match.",
+    "notMember": "Not a member?",
+    "createAccount": "Create account here!",
+    "signIn": "Sign in",
+    "displayName": "Name",
+    "displayNameDescription": "Your displayed name.",
+    "signUp": "Sign up",
+    "alreadyMember": "Already a member?",
+    "signInLink": "Sign in here."
+
+
+}
