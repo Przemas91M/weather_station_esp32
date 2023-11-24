@@ -33,7 +33,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
         weatherRepository.getWeatherForecast('Koszalin');
     emit(state.copyWith(
         status: WeatherStatus.loaded,
-        stationReadings: event.data,
+        newestStationReadings: event.data,
         currentWeather: currentWeather,
         weatherForecast: weatherForecast));
   }
