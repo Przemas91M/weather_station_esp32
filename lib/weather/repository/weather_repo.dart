@@ -1,12 +1,8 @@
 import "dart:convert";
 
 import "package:firebase_database/firebase_database.dart";
-import "package:weather_station_esp32/weather/models/current_weather.dart";
-import "package:weather_station_esp32/weather/models/reading.dart";
 import "package:http/http.dart" as http;
-import "package:weather_station_esp32/weather/models/weather_condition.dart";
-
-import "../models/forecast.dart";
+import "package:weather_station_esp32/weather/models/models.dart";
 
 class WeatherRepository {
   String openWeatherAPI = 'eb4f9d0a14c5403fba4202400231411';
@@ -44,7 +40,8 @@ class WeatherRepository {
 
   Future<List<StationReading>> getReadingsOnce(String path, int limit) async {
     List<StationReading> stationReadings = [];
-    final snapshot = await database.ref().child(path).limitToLast(limit).get();
+    final snapshot =
+        await database.ref('/Readings').child(path).limitToLast(limit).get();
     if (snapshot.exists) {
       var value =
           Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
@@ -70,7 +67,7 @@ class WeatherRepository {
 
   Future<CurrentWeather> getCurrentWeather(String cityName) async {
     String url =
-        'http://api.weatherapi.com/v1/forecast.json?key=$openWeatherAPI&q=$cityName&days=5&aqi=no&alerts=no';
+        'http://api.weatherapi.com/v1/forecast.json?key=$openWeatherAPI&q=$cityName&days=8&aqi=no&alerts=no';
     try {
       http.Response response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

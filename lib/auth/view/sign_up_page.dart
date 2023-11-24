@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/auth/repository/auth_repo.dart';
 import 'package:weather_station_esp32/auth/widgets/auth_button.dart';
 import 'package:weather_station_esp32/auth/widgets/elevated_text_input.dart';
-import 'package:weather_station_esp32/style/color_palette.dart';
+import 'package:weather_station_esp32/style/styling.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../bloc/auth_bloc.dart';
 
@@ -26,6 +27,8 @@ class SignUpPage extends StatelessWidget {
 class _SignUpForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    var locale = AppLocalizations.of(context);
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.error) {
@@ -38,7 +41,7 @@ class _SignUpForm extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.background,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -53,8 +56,8 @@ class _SignUpForm extends StatelessWidget {
                     BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
                         return ElevatedTextInput(
-                            helperText: 'Displayed name.',
-                            inputText: "Name",
+                            helperText: locale!.displayNameDescription,
+                            inputText: locale.displayName,
                             icon: const Icon(Icons.abc),
                             onChanged: (input) => context
                                 .read<AuthBloc>()
@@ -71,7 +74,7 @@ class _SignUpForm extends StatelessWidget {
                               .read<AuthBloc>()
                               .add(EmailChanged(email: input)),
                           errorText: state.errorMessage,
-                          helperText: 'Enter your email address.',
+                          helperText: locale!.emailInput,
                           inputText: 'Email',
                           icon: const Icon(Icons.person),
                         );
@@ -87,8 +90,8 @@ class _SignUpForm extends StatelessWidget {
                               .read<AuthBloc>()
                               .add(PasswordChanged(password: input)),
                           errorText: state.errorMessage,
-                          helperText: 'Minimum 8 characters.',
-                          inputText: 'Password',
+                          helperText: locale!.passwordInput,
+                          inputText: locale.password,
                           obscureText: true,
                           icon: const Icon(Icons.lock),
                         );
@@ -102,8 +105,8 @@ class _SignUpForm extends StatelessWidget {
                       builder: (context, state) {
                         return ElevatedTextInput(
                             errorText: state.errorMessage,
-                            helperText: 'Passwords must match.',
-                            inputText: 'Repeat password',
+                            helperText: locale!.passwordRepeatDescription,
+                            inputText: locale.passwordRepeat,
                             obscureText: true,
                             icon: const Icon(Icons.lock),
                             onChanged: (input) => context.read<AuthBloc>().add(
@@ -112,22 +115,25 @@ class _SignUpForm extends StatelessWidget {
                       },
                     ),
                     const SizedBox(height: 20.0),
-                    AuthButton(textInput: 'Register', onTap: () {}),
+                    AuthButton(
+                        textInput: locale!.signUp,
+                        onTap: () {
+                          context.read<AuthBloc>().add(SignUpRequested());
+                        }),
                     const SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          'Already a member? ',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          '${locale.alreadyMember} ',
+                          style: theme.textTheme.bodyMedium,
                         ),
                         GestureDetector(
                           onTap: () => Navigator.of(context).pop(),
-                          child: const Text(
-                            'Sign in here.',
-                            style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: ColorPalette.midBlue),
+                          child: Text(
+                            locale.signInLink,
+                            style: theme.textTheme.bodyMedium!
+                                .apply(decoration: TextDecoration.underline),
                           ),
                         ),
                       ],

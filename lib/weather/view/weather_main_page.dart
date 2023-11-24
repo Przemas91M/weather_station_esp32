@@ -1,8 +1,7 @@
-import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_station_esp32/style/color_palette.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 
@@ -34,6 +33,9 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    final Locale locale = Localizations.localeOf(context);
+    Intl.defaultLocale = locale.languageCode;
     User? user = context.select((AppBloc bloc) => bloc.state.user);
     bool temperatureUnits =
         context.watch<SettingsBloc>().settingsMap['celsius'] ?? true;
@@ -44,13 +46,10 @@ class _MainPageState extends State<MainPage> {
 
     return Scaffold(
       drawer: _Drawer(user: user), //TODO add drawer items and widgets
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        flexibleSpace: ClipRRect(
-            child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10))),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: ColorPalette.midBlue,
+        scrolledUnderElevation: 0.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         actions: [
           IconButton(
               onPressed: () =>
@@ -60,10 +59,6 @@ class _MainPageState extends State<MainPage> {
         title: const Text(
           'Koszalin',
         ),
-        titleTextStyle: const TextStyle(
-            color: ColorPalette.midBlue,
-            fontSize: 20,
-            fontWeight: FontWeight.bold),
         centerTitle: true,
       ),
       body: BlocBuilder<WeatherBloc, WeatherState>(
@@ -80,11 +75,7 @@ class _MainPageState extends State<MainPage> {
             } else if (state.status == WeatherStatus.loaded) {
               return SingleChildScrollView(
                 child: Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [Colors.grey.shade300, Colors.grey.shade300],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomRight)),
+                  decoration: const BoxDecoration(color: Colors.transparent),
                   padding: const EdgeInsets.only(
                       left: 20.0, top: 10.0, right: 25.0, bottom: 10.0),
                   child: Column(
@@ -93,32 +84,28 @@ class _MainPageState extends State<MainPage> {
                     children: [
                       const SizedBox(height: 5.0),
                       //big widget showing current weather from station
-                      StationReadingsCard(
-                        currentWeather: state.currentWeather!,
-                        reading: state.stationReadings!.last,
-                        temperatureUnits: temperatureUnits,
+                      GestureDetector(
+                        child: StationReadingsCard(
+                          currentWeather: state.currentWeather!,
+                          reading: state.newestStationReadings!.last,
+                          temperatureUnits: temperatureUnits,
+                        ),
+                        onTap: () => showModalBottomSheet(
+                            backgroundColor: theme.colorScheme.background,
+                            isScrollControlled: true,
+                            enableDrag: true,
+                            showDragHandle: true,
+                            context: context,
+                            builder: (context) => StationBottomModalSheet()),
                       ),
-                      const SizedBox(height: 30.0),
                       TodaySummaryCard(
                           today: state.weatherForecast?.last,
                           rainUnits: precipUnits,
                           temperatureUnits: temperatureUnits,
                           windUnits: windSpeedUnits),
-                      const SizedBox(
-                        height: 30.0,
-                      ),
                       //second big widget with weather from forecast
                       //next a list with weather forecast for 7 days, depending on location selected
-
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: MediaQuery.of(context).size.width / 3.5),
-                        child: const Text('7 day forecast:',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20)),
-                      ),
-                      const SizedBox(height: 5),
-                      ForecastHorizontalList(
+                      ForecastVerticalList(
                         forecastList: state.weatherForecast!,
                         temperatureUnits: temperatureUnits,
                       ),
@@ -127,10 +114,11 @@ class _MainPageState extends State<MainPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           BatteryCard(
-                              volts:
-                                  state.stationReadings!.last.batteryVoltage),
+                              volts: state
+                                  .newestStationReadings!.last.batteryVoltage),
                           SolarCard(
-                              volts: state.stationReadings!.last.solarVoltage)
+                              volts: state
+                                  .newestStationReadings!.last.solarVoltage)
                         ],
                       ),
 
@@ -141,7 +129,7 @@ class _MainPageState extends State<MainPage> {
                 ),
               );
             } else {
-              return const Center(child: Text('Unknown error!'));
+              return Container();
             }
           }),
     );
@@ -155,60 +143,67 @@ class _Drawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.background,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-              decoration: const BoxDecoration(color: ColorPalette.lightBlue),
+              decoration: BoxDecoration(color: theme.colorScheme.primary),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CircleAvatar(
-                      radius: 40.0,
+                      radius: 30.0,
                       backgroundColor: Colors.white,
                       child: Text(
                         user!.displayName?.substring(0, 1) ?? 'U',
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 36.0,
-                            color: ColorPalette.lightBlue),
+                            fontSize: 26.0,
+                            color: Colors.black),
                       )),
                   const SizedBox(height: 5),
                   Text(
                     user!.displayName ?? 'None',
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     user!.email ?? 'None',
-                    style: const TextStyle(color: Colors.white, fontSize: 16.0),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.w300),
                   )
                 ],
               )),
           ListTile(
               leading: const Icon(Icons.home),
-              title: const Text('Home',
-                  style: TextStyle(color: ColorPalette.lightBlue)),
+              title: Text('Home', style: theme.textTheme.bodyLarge),
               onTap: () {
                 Navigator.pop(context);
               }),
           ListTile(
             leading: const Icon(Icons.location_on),
-            title: const Text('Koszalin',
-                style: TextStyle(color: ColorPalette.lightBlue)),
+            title: Text('Koszalin', style: theme.textTheme.bodyLarge),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           const Divider(
             height: 2.0,
-            color: ColorPalette.darkBlue,
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings',
-                style: TextStyle(color: ColorPalette.lightBlue)),
+            leading: const Icon(
+              Icons.settings,
+            ),
+            title: Text('Settings', style: theme.textTheme.bodyLarge),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/settings');
@@ -216,8 +211,7 @@ class _Drawer extends StatelessWidget {
           ),
           ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Log out',
-                  style: TextStyle(color: ColorPalette.lightBlue)),
+              title: Text('Log out', style: theme.textTheme.bodyLarge),
               onTap: () {
                 Navigator.pop(context);
                 context.read<AppBloc>().add(AppLogOutRequested());

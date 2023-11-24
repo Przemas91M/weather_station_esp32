@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weather_station_esp32/style/color_palette.dart';
+import 'package:weather_station_esp32/style/styling.dart';
 
 class ElevatedTextInput extends StatelessWidget {
   const ElevatedTextInput(
@@ -22,37 +22,26 @@ class ElevatedTextInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Container(
-        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
         decoration: BoxDecoration(
-            border: Border.all(color: ColorPalette.midBlue, width: 1.0),
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                color: ColorPalette.lightBlue,
-                offset: Offset(3.0, 3.0),
-                blurRadius: 0.0, //check the style
-                blurStyle: BlurStyle.normal,
-              )
-            ]),
+            borderRadius: BorderRadius.circular(20),
+            color: theme.colorScheme.surface,
+            boxShadow: CardStyle.smallShadow(color: theme.colorScheme.outline)),
         child: TextField(
-          obscureText: obscureText ?? false,
-          onChanged: onChanged,
-          onSubmitted: onEditingComplete,
-          decoration: InputDecoration(
+            obscureText: obscureText ?? false,
+            onChanged: onChanged,
+            onSubmitted: onEditingComplete,
+            decoration: InputDecoration(
               helperText: helperText,
-              helperStyle: const TextStyle(color: ColorPalette.darkBlue),
               errorText: errorText,
-              enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: ColorPalette.midBlue)),
-              focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: ColorPalette.darkBlue)),
-              hintStyle: const TextStyle(color: ColorPalette.midBlue),
+              enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: theme.colorScheme.secondary)),
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: theme.colorScheme.secondary)),
               hintText: inputText,
               icon: icon,
-              iconColor: ColorPalette.midBlue),
-          style: const TextStyle(color: ColorPalette.midBlue),
-        ));
+            )));
   }
 }

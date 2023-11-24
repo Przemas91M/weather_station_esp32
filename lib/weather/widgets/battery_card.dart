@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../style/styling.dart';
 
@@ -13,6 +14,7 @@ class BatteryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     int charge = (((volts - 3.2) * 100) ~/ (4.2 - 3.2)).ceil();
     String level = 'Low';
     switch (charge) {
@@ -32,14 +34,15 @@ class BatteryCard extends StatelessWidget {
       padding: const EdgeInsets.all(15.0),
       width: 150,
       decoration: BoxDecoration(
-          color: Colors.white,
-          border: CardStyle.thinBorder(),
-          borderRadius: BorderRadius.circular(15.0)),
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(30.0),
+          boxShadow: CardStyle.smallShadow(color: theme.colorScheme.outline)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Text('Battery', style: TextStyle(fontSize: 20)),
+          Text(AppLocalizations.of(context)!.battery,
+              style: theme.textTheme.displaySmall),
           const SizedBox(height: 7.0),
           Icon(Icons.battery_charging_full_rounded,
               color: chargeLevel[level], size: 36),

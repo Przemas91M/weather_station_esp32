@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/auth/repository/auth_repo.dart';
 import 'package:weather_station_esp32/auth/widgets/auth_button.dart';
 import 'package:weather_station_esp32/auth/widgets/elevated_text_input.dart';
-import 'package:weather_station_esp32/style/color_palette.dart';
+import 'package:weather_station_esp32/style/styling.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../bloc/auth_bloc.dart';
 
@@ -21,6 +22,8 @@ class SignInPage extends StatelessWidget {
 class _SignInForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    var locale = AppLocalizations.of(context);
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
@@ -36,7 +39,7 @@ class _SignInForm extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.background,
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Center(
@@ -55,7 +58,7 @@ class _SignInForm extends StatelessWidget {
                               .read<AuthBloc>()
                               .add(EmailChanged(email: input)),
                           errorText: state.errorMessage,
-                          helperText: 'Enter your email address.',
+                          helperText: locale!.emailInput,
                           inputText: 'Email',
                           icon: const Icon(Icons.person));
                     },
@@ -70,10 +73,10 @@ class _SignInForm extends StatelessWidget {
                             .read<AuthBloc>()
                             .add(PasswordChanged(password: input)),
                         errorText: state.errorMessage,
-                        helperText: 'Minimum 8 characters.',
-                        inputText: 'Password',
+                        helperText: locale!.passwordInput,
+                        inputText: locale.password,
                         obscureText: true,
-                        icon: const Icon(Icons.keyboard),
+                        icon: const Icon(Icons.lock),
                       );
                     },
                   ),
@@ -83,7 +86,7 @@ class _SignInForm extends StatelessWidget {
                       return const CircularProgressIndicator();
                     } else {
                       return AuthButton(
-                          textInput: 'Login',
+                          textInput: locale!.signIn,
                           onTap: () =>
                               context.read<AuthBloc>().add(SignInRequested()));
                     }
@@ -93,16 +96,15 @@ class _SignInForm extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        'Not a member? ',
+                        '${locale!.notMember} ',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pushNamed('/signUp'),
-                        child: const Text(
-                          'Create account here!',
-                          style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: ColorPalette.midBlue),
+                        child: Text(
+                          locale.createAccount,
+                          style: theme.textTheme.bodyMedium!
+                              .apply(decoration: TextDecoration.underline),
                         ),
                       ),
                     ],

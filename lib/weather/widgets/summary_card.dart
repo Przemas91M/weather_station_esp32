@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weather_icons/weather_icons.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../../style/styling.dart';
 import '../models/models.dart';
 
@@ -17,19 +19,18 @@ class TodaySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    var local = AppLocalizations.of(context);
     return Container(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(10.0),
+        margin: const EdgeInsets.only(bottom: 30.0),
         decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15.0),
-            border: CardStyle.thinBorder()),
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(30.0),
+            boxShadow: CardStyle.smallShadow(color: theme.colorScheme.outline)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          const Text('Today',
-              style: TextStyle(
-                  fontSize: 20,
-                  color: ColorPalette.lightBlue,
-                  fontWeight: FontWeight.w500)),
-          const Divider(color: Colors.black, height: 10.0),
+          Text(local!.today, style: theme.textTheme.displayMedium),
+          const Divider(height: 15.0),
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -42,15 +43,13 @@ class TodaySummaryCard extends StatelessWidget {
                       children: [
                         Text(
                           '${temperatureUnits ? today?.avgTempC : today?.avgTempF}${temperatureUnits ? '°C' : ' F'}',
-                          style: const TextStyle(
-                              color: ColorPalette.lightBlue, fontSize: 24.0),
+                          style: theme.textTheme.displayLarge,
                         ),
                         BoxedIcon(today?.condition.icon ?? Icons.close,
                             color: today?.condition.iconColor, size: 35),
                         const SizedBox(height: 10),
                         Text('${today?.condition.condition}',
-                            style: const TextStyle(
-                                color: ColorPalette.lightBlue, fontSize: 20.0),
+                            style: theme.textTheme.displaySmall,
                             overflow: TextOverflow.visible,
                             textAlign: TextAlign.center)
                       ],
@@ -66,10 +65,10 @@ class TodaySummaryCard extends StatelessWidget {
                             children: [
                               const BoxedIcon(
                                 WeatherIcons.thermometer,
-                                color: ColorPalette.yellow,
                               ),
                               Text(
-                                  '${temperatureUnits ? today?.maxTempC : today?.maxTempF}${temperatureUnits ? '°C' : ' F'}')
+                                  '${temperatureUnits ? today?.maxTempC : today?.maxTempF}${temperatureUnits ? '°C' : ' F'}',
+                                  style: theme.textTheme.bodyLarge)
                             ],
                           ),
                           Wrap(
@@ -77,10 +76,10 @@ class TodaySummaryCard extends StatelessWidget {
                             children: [
                               const BoxedIcon(
                                 WeatherIcons.thermometer_exterior,
-                                color: ColorPalette.lightBlue,
                               ),
                               Text(
-                                  '${temperatureUnits ? today?.minTempC : today?.minTempF}${temperatureUnits ? '°C' : ' F'}')
+                                  '${temperatureUnits ? today?.minTempC : today?.minTempF}${temperatureUnits ? '°C' : ' F'}',
+                                  style: theme.textTheme.bodyLarge)
                             ],
                           ),
                           Wrap(
@@ -88,9 +87,9 @@ class TodaySummaryCard extends StatelessWidget {
                             children: [
                               const BoxedIcon(
                                 WeatherIcons.humidity,
-                                color: ColorPalette.lightBlue,
                               ),
-                              Text('${today?.avgHumidity.toStringAsFixed(0)}%')
+                              Text('${today?.avgHumidity.toStringAsFixed(0)}%',
+                                  style: theme.textTheme.bodyLarge)
                             ],
                           ),
                         ])),
@@ -106,16 +105,18 @@ class TodaySummaryCard extends StatelessWidget {
                     const BoxedIcon(
                       WeatherIcons.strong_wind,
                       size: 15,
-                      color: ColorPalette.lightBlue,
                     ),
+                    const SizedBox(width: 5),
                     Text(
-                        '${windUnits ? today?.maxWindKph : today?.maxWindMph}${windUnits ? ' km/h' : ' mph'}')
+                      '${windUnits ? today?.maxWindKph : today?.maxWindMph}${windUnits ? ' km/h' : ' mph'}',
+                      style: theme.textTheme.bodyMedium,
+                    )
                   ]),
               Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                 const BoxedIcon(
                   WeatherIcons.rain_mix,
-                  color: ColorPalette.lightBlue,
                 ),
+                const SizedBox(width: 2),
                 Text(
                     '${rainUnits ? today?.totalPrecipMM : today?.totalPrecipIN}${rainUnits ? ' mm' : ' in'}')
               ]),
@@ -124,6 +125,7 @@ class TodaySummaryCard extends StatelessWidget {
                   WeatherIcons.sunrise,
                   color: ColorPalette.yellow,
                 ),
+                const SizedBox(width: 5),
                 Text('UV: ${today?.uvIndex.toStringAsFixed(1)}')
               ]),
             ],

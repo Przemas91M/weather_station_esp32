@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../style/styling.dart';
 
@@ -12,6 +13,7 @@ class SolarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     int charging = (((volts - 3.75) * 100) ~/ (6.48 - 3.75)).ceil();
     String level = 'Low';
     switch (charging) {
@@ -28,14 +30,15 @@ class SolarCard extends StatelessWidget {
       padding: const EdgeInsets.all(15.0),
       width: 150,
       decoration: BoxDecoration(
-          color: Colors.white,
-          border: CardStyle.thinBorder(),
-          borderRadius: BorderRadius.circular(15.0)),
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(30.0),
+          boxShadow: CardStyle.smallShadow(color: theme.colorScheme.outline)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Text('Solar cell', style: TextStyle(fontSize: 20)),
+          Text(AppLocalizations.of(context)!.solarCell,
+              style: theme.textTheme.displaySmall),
           const SizedBox(height: 7.0),
           Icon(Icons.solar_power_rounded, color: chargeLevel[level], size: 36),
           const SizedBox(height: 7.0),

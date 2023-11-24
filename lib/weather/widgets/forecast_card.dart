@@ -31,30 +31,39 @@ class ForecastCard extends StatelessWidget {
     }
     return Container(
       margin:
-          const EdgeInsets.only(left: 5.0, bottom: 10.0, right: 5.0, top: 5.0),
+          const EdgeInsets.only(left: 5.0, bottom: 30.0, right: 5.0, top: 5.0),
       padding: const EdgeInsets.all(10.0),
       width: 150,
+      height: 180,
       decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           //border: Border.all(color: ColorPalette.midBlue, width: 3.0),
           borderRadius: BorderRadius.circular(15.0),
-          border: CardStyle.thinBorder()),
+          border: CardStyle.thinBorder(
+              color: Theme.of(context).colorScheme.outline)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            dateString,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          Expanded(
+            child: Text(
+              dateString,
+              style: Theme.of(context).textTheme.displayMedium,
+            ),
           ),
           const SizedBox(height: 5.0),
-          BoxedIcon(
-            icon,
-            color: ColorPalette.lightBlue,
-            size: 36,
+          Expanded(
+            child: BoxedIcon(
+              icon,
+              size: 36,
+            ),
           ),
-          const SizedBox(height: 10.0),
-          Text('$temperature${temperatureUnits ? '°C' : ' F'}'),
+          const SizedBox(height: 20.0),
+          Expanded(
+              child: Text(
+            '$temperature${temperatureUnits ? '°C' : ' F'}',
+            style: Theme.of(context).textTheme.bodyLarge,
+          )),
         ],
       ),
     );
