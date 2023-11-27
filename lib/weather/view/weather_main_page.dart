@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../settings/bloc/settings_bloc.dart';
 import '../../weather/widgets/widgets.dart';
@@ -35,6 +36,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     final Locale locale = Localizations.localeOf(context);
+    var localeVocabulary = AppLocalizations.of(context);
     Intl.defaultLocale = locale.languageCode;
     User? user = context.select((AppBloc bloc) => bloc.state.user);
     bool temperatureUnits =
@@ -45,7 +47,10 @@ class _MainPageState extends State<MainPage> {
         context.watch<SettingsBloc>().settingsMap['milimeters'] ?? true;
 
     return Scaffold(
-      drawer: _Drawer(user: user), //TODO add drawer items and widgets
+      drawer: _Drawer(
+        user: user,
+        localeVocabulary: localeVocabulary,
+      ), //TODO add drawer items and widgets
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         scrolledUnderElevation: 0.0,
@@ -61,7 +66,14 @@ class _MainPageState extends State<MainPage> {
         ),
         centerTitle: true,
       ),
-      body: BlocBuilder<WeatherBloc, WeatherState>(
+      body: BlocConsumer<WeatherBloc, WeatherState>(
+          listenWhen: (previous, current) {
+            return previous.status == WeatherStatus.initial &&
+                current.status == WeatherStatus.loading;
+          },
+          listener: (context, state) {
+            BlocProvider.of<AppBloc>(context).add(RefreshUser());
+          },
           bloc: context.read<WeatherBloc>(),
           builder: (context, state) {
             if (state.status == WeatherStatus.loading) {
@@ -137,8 +149,9 @@ class _MainPageState extends State<MainPage> {
 }
 
 class _Drawer extends StatelessWidget {
-  const _Drawer({Key? key, required this.user}) : super(key: key);
-
+  const _Drawer({Key? key, required this.user, required this.localeVocabulary})
+      : super(key: key);
+  final AppLocalizations? localeVocabulary;
   final User? user;
 
   @override
@@ -184,8 +197,9 @@ class _Drawer extends StatelessWidget {
                 ],
               )),
           ListTile(
-              leading: const Icon(Icons.home),
-              title: Text('Home', style: theme.textTheme.bodyLarge),
+              leading: const Icon(Icons.save),
+              title: Text(localeVocabulary!.locations,
+                  style: theme.textTheme.bodyLarge),
               onTap: () {
                 Navigator.pop(context);
               }),
@@ -203,7 +217,8 @@ class _Drawer extends StatelessWidget {
             leading: const Icon(
               Icons.settings,
             ),
-            title: Text('Settings', style: theme.textTheme.bodyLarge),
+            title: Text(localeVocabulary!.settings,
+                style: theme.textTheme.bodyLarge),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/settings');
@@ -211,11 +226,12 @@ class _Drawer extends StatelessWidget {
           ),
           ListTile(
               leading: const Icon(Icons.logout),
-              title: Text('Log out', style: theme.textTheme.bodyLarge),
+              title: Text(localeVocabulary!.logout,
+                  style: theme.textTheme.bodyLarge),
               onTap: () {
                 Navigator.pop(context);
                 context.read<AppBloc>().add(AppLogOutRequested());
-              })
+              }),
         ],
       ),
     );
