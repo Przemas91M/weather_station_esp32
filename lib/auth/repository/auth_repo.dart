@@ -45,6 +45,7 @@ class AuthRepository {
       await _createUserData(
           displayName: _auth.currentUser!.displayName!,
           uid: _auth.currentUser!.uid);
+      await Future.delayed(const Duration(seconds: 2));
       await _auth.currentUser!.reload();
       //now create user data in firestore
     } on FirebaseAuthException catch (e) {
@@ -59,6 +60,11 @@ class AuthRepository {
         .set({'Name': displayName, 'cities': []})
         .then((value) => print("User Data added!"))
         .catchError((error) => print('Failed to add user data: $error'));
+  }
+
+  Future<User?> refreshUser() async {
+    await _auth.currentUser!.reload();
+    return _auth.currentUser;
   }
 }
 
