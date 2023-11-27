@@ -26,7 +26,8 @@
     "displayNameDescription": "Your displayed name.",
     "signUp": "Sign up",
     "alreadyMember": "Already a member?",
-    "signInLink": "Sign in here."
+    "signInLink": "Sign in here.",
+    "locations": "Saved locations:"
 
 
 }

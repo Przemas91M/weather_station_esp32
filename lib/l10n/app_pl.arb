@@ -26,5 +26,6 @@
     "displayNameDescription": "Wpisz swoje imię.",
     "signUp": "Zarejestruj się",
     "alreadyMember": "Masz już konto?",
-    "signInLink": "Zaloguj się tutaj."
+    "signInLink": "Zaloguj się tutaj.",
+    "locations": "Zapisane lokalizacje:"
 }
