@@ -1,9 +1,9 @@
 import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:weather_station_esp32/auth/repository/auth_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -97,12 +97,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // FutureOr<void> _logOutRequested(
-  //     LogOutRequested event, Emitter<AuthState> emit) {
-  //   emit(state.copyWith(status: AuthStatus.loading));
-  //   _authRepository.logOut();
-  // }
-
   bool _validateEmail(String email) {
     return RegExp(
             r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -113,6 +107,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     return password.length >= 8;
   }
 
+  bool _validatePasswords(String password, String confirmedPassword) {
+    return password.length >= 8 && password == confirmedPassword;
+  }
+
   bool _validateUserName(String username) {
     return username.length >= 3;
   }
@@ -120,6 +118,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   bool validateAll() {
     return _validateEmail(state.email) &&
         _validateUserName(state.displayName) &&
-        _validatePassword(state.password);
+        _validatePasswords(state.password, state.confirmedPassword);
   }
 }
