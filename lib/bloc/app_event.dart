@@ -15,3 +15,5 @@ class _AppUserChanged extends AppEvent {
 class AppLogOutRequested extends AppEvent {}
 
 class OpenSettingsScreen extends AppEvent {}
+
+class RefreshUser extends AppEvent {}
