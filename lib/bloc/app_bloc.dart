@@ -14,6 +14,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         super(const AppInitial()) {
     on<_AppUserChanged>(_userChanged);
     on<AppLogOutRequested>(_appLogoutRequested);
+    on<RefreshUser>(_refreshUser);
     _userSubscription =
         _authRepository.userStream.listen((user) => add(_AppUserChanged(user)));
   }
@@ -29,6 +30,11 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   FutureOr<void> _appLogoutRequested(
       AppLogOutRequested event, Emitter<AppState> emit) {
     _authRepository.logOut();
+  }
+
+  FutureOr<void> _refreshUser(RefreshUser event, Emitter<AppState> emit) async {
+    User? user = await _authRepository.refreshUser();
+    emit(Authenticated(user!));
   }
 
   @override
