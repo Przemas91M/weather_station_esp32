@@ -1,16 +1,20 @@
+import "dart:async";
 import "dart:convert";
 
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_database/firebase_database.dart";
 import "package:http/http.dart" as http;
+import "package:weather_station_esp32/locations_management/models/location.dart";
 import "package:weather_station_esp32/weather/models/models.dart";
 
 class WeatherRepository {
-  String openWeatherAPI = 'api key';
-  FirebaseDatabase database = FirebaseDatabase.instance;
+  String openWeatherAPI = 'eb4f9d0a14c5403fba4202400231411';
+  FirebaseDatabase stationDatabase = FirebaseDatabase.instance;
+  FirebaseFirestore firestoreDatabase = FirebaseFirestore.instance;
   List<dynamic> forecast = [];
 
   Stream<List<StationReading>> databaseDataChanged(String cityName, int limit) {
-    return database
+    return stationDatabase
         .ref('/Readings/$cityName')
         .limitToLast(limit)
         .onValue
@@ -40,8 +44,11 @@ class WeatherRepository {
 
   Future<List<StationReading>> getReadingsOnce(String path, int limit) async {
     List<StationReading> stationReadings = [];
-    final snapshot =
-        await database.ref('/Readings').child(path).limitToLast(limit).get();
+    final snapshot = await stationDatabase
+        .ref('/Readings')
+        .child(path)
+        .limitToLast(limit)
+        .get();
     if (snapshot.exists) {
       var value =
           Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
@@ -81,6 +88,21 @@ class WeatherRepository {
     } catch (_) {
       throw Exception('Failed to load weather data!');
     }
+  }
+
+  Future<List<Map<String, dynamic>>> getStationsLocation() async {
+    List<Map<String, dynamic>> stations = [];
+    await firestoreDatabase
+        .collection('stationLocations')
+        .get()
+        .then((querysnapshot) {
+      for (var item in querysnapshot.docs) {
+        stations.add(item.data());
+      }
+    }).onError((error, stackTrace) {
+      print(error.toString());
+    });
+    return stations;
   }
 
   List<Forecast> getWeatherForecast(String cityName) {
@@ -134,5 +156,83 @@ class WeatherRepository {
       }
     }
     return forecastList;
+  }
+
+  Future<List<dynamic>> getUserSavedData(String uid) async {
+    return firestoreDatabase
+        .collection('users')
+        .doc(uid)
+        .get()
+        .then((DocumentSnapshot snapshot) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      if (data.isEmpty) {
+        return [];
+      }
+      return data['cities'] as List<dynamic>;
+    }).onError((error, stackTrace) {
+      print(error.toString());
+      return [];
+    });
+  }
+
+  Future<List<Location>> getUserSavedLocations(String uid) async {
+    List<Location> locations = [];
+    List<dynamic> userData = await getUserSavedData(uid);
+    List<Map<String, dynamic>> stations = await getStationsLocation();
+    for (var data in userData) {
+      for (var station in stations) {
+        if (data['name'] == station['name'] &&
+            data['country'] == station['country']) {
+          locations.add(Location.fromJson(data, true));
+        } else {
+          locations.add(Location.fromJson(data, false));
+        }
+      }
+    }
+    return locations;
+  }
+
+  Future<bool> saveUserSavedLocations(
+      String uid, List<Location> locations) async {
+    List<Map<String, dynamic>> cities = [];
+    for (Location loc in locations) {
+      cities.add({'name': loc.name, 'country': loc.country, 'url': loc.url});
+    }
+    await firestoreDatabase
+        .collection('users')
+        .doc(uid)
+        .set({'cities': cities}).onError((error, stackTrace) {
+      print(error.toString());
+      return false;
+    });
+    return true;
+  }
+
+  Future<List<Location>> locationFinder(String query) async {
+    String url =
+        'http://api.weatherapi.com/v1/search.json?key=$openWeatherAPI&q=$query';
+    try {
+      List<Map<String, dynamic>> stations = await getStationsLocation();
+      http.Response response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        List<Location> foundLocations = [];
+        final List<dynamic> data = jsonDecode(response.body);
+        for (var item in data) {
+          for (var station in stations) {
+            if (item['name'] == station['name'] &&
+                item['country'] == station['country']) {
+              foundLocations.add(Location.fromJson(item, true));
+            } else {
+              foundLocations.add(Location.fromJson(item, false));
+            }
+          }
+        }
+        return foundLocations;
+      } else {
+        throw Exception('Failed to load location suggestion');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 }
