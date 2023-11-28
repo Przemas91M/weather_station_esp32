@@ -63,7 +63,7 @@ class AppView extends StatelessWidget {
           '/signIn': (context) => const SignInPage(),
           '/signUp': (context) => const SignUpPage(),
           '/homePage': (context) => const WeatherMainPage(),
-          '/settings': (context) => const SettingsScreen()
+          '/settings': (context) => const SettingsScreen(),
         },
         theme: ThemeData(
             useMaterial3: true,
