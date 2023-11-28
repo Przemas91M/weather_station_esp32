@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:weather_station_esp32/locations_management/view/location_management.dart';
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -197,11 +198,17 @@ class _Drawer extends StatelessWidget {
                 ],
               )),
           ListTile(
-              leading: const Icon(Icons.save),
+              leading: const Icon(Icons.add),
               title: Text(localeVocabulary!.locations,
                   style: theme.textTheme.bodyLarge),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LocationManagement(
+                              user: user!,
+                            )));
               }),
           ListTile(
             leading: const Icon(Icons.location_on),
