@@ -141,8 +141,10 @@ class AppView extends StatelessWidget {
         home: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
           if (state is Authenticated) {
             return RepositoryProvider(
-              create: (context) => WeatherRepository(),
-              child: const WeatherMainPage(),
+              create: (context) => WeatherRepository(
+                  user: state.user!), //TODO provide user data to repository
+              child:
+                  const WeatherMainPage(), //TODO when given no arguments, show forecast from first location from list
             );
           } else {
             return const SignInPage();

@@ -2,16 +2,20 @@ import "dart:async";
 import "dart:convert";
 
 import "package:cloud_firestore/cloud_firestore.dart";
+import "package:firebase_auth/firebase_auth.dart";
 import "package:firebase_database/firebase_database.dart";
 import "package:http/http.dart" as http;
 import "package:weather_station_esp32/locations_management/models/location.dart";
 import "package:weather_station_esp32/weather/models/models.dart";
 
 class WeatherRepository {
+  final User user;
   String openWeatherAPI = 'eb4f9d0a14c5403fba4202400231411';
   FirebaseDatabase stationDatabase = FirebaseDatabase.instance;
   FirebaseFirestore firestoreDatabase = FirebaseFirestore.instance;
   List<dynamic> forecast = [];
+
+  WeatherRepository({required this.user});
 
   Stream<List<StationReading>> databaseDataChanged(String cityName, int limit) {
     return stationDatabase
@@ -158,10 +162,10 @@ class WeatherRepository {
     return forecastList;
   }
 
-  Future<List<dynamic>> getUserSavedData(String uid) async {
+  Future<List<dynamic>> getUserSavedData() async {
     return firestoreDatabase
         .collection('users')
-        .doc(uid)
+        .doc(user.uid)
         .get()
         .then((DocumentSnapshot snapshot) {
       var data = snapshot.data() as Map<String, dynamic>;
@@ -175,9 +179,9 @@ class WeatherRepository {
     });
   }
 
-  Future<List<Location>> getUserSavedLocations(String uid) async {
+  Future<List<Location>> getUserSavedLocations() async {
     List<Location> locations = [];
-    List<dynamic> userData = await getUserSavedData(uid);
+    List<dynamic> userData = await getUserSavedData();
     List<Map<String, dynamic>> stations = await getStationsLocation();
     for (var data in userData) {
       for (var station in stations) {
@@ -192,15 +196,14 @@ class WeatherRepository {
     return locations;
   }
 
-  Future<bool> saveUserSavedLocations(
-      String uid, List<Location> locations) async {
+  Future<bool> saveUserSavedLocations(List<Location> locations) async {
     List<Map<String, dynamic>> cities = [];
     for (Location loc in locations) {
       cities.add({'name': loc.name, 'country': loc.country, 'url': loc.url});
     }
     await firestoreDatabase
         .collection('users')
-        .doc(uid)
+        .doc(user.uid)
         .set({'cities': cities}).onError((error, stackTrace) {
       print(error.toString());
       return false;
