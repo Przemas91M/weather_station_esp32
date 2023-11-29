@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/locations_management/cubit/location_management_cubit.dart';
@@ -9,25 +8,21 @@ import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 import '../../models/location.dart';
 
 class LocationSearchSheet extends StatelessWidget {
-  const LocationSearchSheet({super.key, required this.user});
-  final User? user;
+  const LocationSearchSheet({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-        create: (context) => WeatherRepository(),
-        child: BlocProvider(
-          create: (context) => LocationFinderCubit(
-              weatherRepository: context.read<WeatherRepository>()),
-          child: _LocationSearchSheetView(
-            user: user,
-          ),
-        ));
+    return BlocProvider(
+      create: (context) => LocationFinderCubit(
+          weatherRepository: context.read<WeatherRepository>()),
+      child: const _LocationSearchSheetView(),
+    );
   }
 }
 
 class _LocationSearchSheetView extends StatelessWidget {
-  const _LocationSearchSheetView({required this.user});
-  final User? user;
+  const _LocationSearchSheetView();
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -53,8 +48,7 @@ class _LocationSearchSheetView extends StatelessWidget {
             BlocBuilder<LocationFinderCubit, LocationFinderState>(
               builder: (context, state) {
                 if (state.status == FinderStatus.loading) {
-                  return const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.white));
+                  return const CircularProgressIndicator(color: Colors.white);
                 }
                 if (state.status == FinderStatus.found) {
                   return Column(
@@ -72,7 +66,7 @@ class _LocationSearchSheetView extends StatelessWidget {
                                 Navigator.pop(context);
                                 context
                                     .read<LocationManagementCubit>()
-                                    .addAndSaveLocations(item, user!.uid);
+                                    .addAndSaveLocations(item);
                               },
                               child: LocationCard(locationData: item))
                       ]),

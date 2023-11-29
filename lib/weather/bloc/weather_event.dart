@@ -12,3 +12,13 @@ class StationDataChanged extends WeatherEvent {
 
   const StationDataChanged({required this.data});
 }
+
+class SubscribeNewLocation extends WeatherEvent {
+  final Location location;
+
+  const SubscribeNewLocation({required this.location});
+}
+
+class RefreshWeatherForecast extends WeatherEvent {}
+
+class NewLocationWithoutStation extends WeatherEvent {}

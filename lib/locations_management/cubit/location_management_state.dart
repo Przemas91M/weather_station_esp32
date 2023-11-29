@@ -1,6 +1,6 @@
 part of 'location_management_cubit.dart';
 
-enum LocationStatus { initial, loading, loaded, error, saved }
+enum LocationStatus { initial, loading, loaded, error, reordered, saved }
 
 class LocationManagementState extends Equatable {
   final LocationStatus status;

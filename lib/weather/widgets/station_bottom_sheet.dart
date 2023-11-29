@@ -22,13 +22,10 @@ class StationBottomModalSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (context) => WeatherRepository(),
-      child: BlocProvider(
-        create: (context) => StationSheetCubit(
-            weatherRepository: context.read<WeatherRepository>()),
-        child: _BottomSheet(),
-      ),
+    return BlocProvider(
+      create: (context) => StationSheetCubit(
+          weatherRepository: context.read<WeatherRepository>()),
+      child: _BottomSheet(),
     );
   }
 }

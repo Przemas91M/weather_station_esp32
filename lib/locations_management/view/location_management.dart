@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_station_esp32/locations_management/cubit/location_management_cubit.dart';
@@ -8,25 +7,20 @@ import '../../weather/repository/weather_repo.dart';
 import '../models/location.dart';
 
 class LocationManagement extends StatelessWidget {
-  const LocationManagement({super.key, required this.user});
-  final User user;
+  const LocationManagement({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (context) => WeatherRepository(),
-      child: BlocProvider(
-        create: (context) => LocationManagementCubit(
-            weatherRepository: context.read<WeatherRepository>()),
-        child: _LocationView(user),
-      ),
+    return BlocProvider(
+      create: (context) => LocationManagementCubit(
+          weatherRepository: context.read<WeatherRepository>()),
+      child: const _LocationView(),
     );
   }
 }
 
 class _LocationView extends StatelessWidget {
-  final User _user;
-  const _LocationView(User user) : _user = user;
-
+  const _LocationView();
   @override
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<LocationManagementCubit>(context);
@@ -45,7 +39,7 @@ class _LocationView extends StatelessWidget {
                     context: context,
                     builder: (context) {
                       return BlocProvider.value(
-                          value: bloc, child: LocationSearchSheet(user: _user));
+                          value: bloc, child: LocationSearchSheet());
                     }),
                 icon: const Icon(Icons.add))
           ],
@@ -63,26 +57,27 @@ class _LocationView extends StatelessWidget {
             builder: (context, state) {
               if (state.status == LocationStatus.initial) {
                 Future.wait([
-                  context
-                      .read<LocationManagementCubit>()
-                      .getSavedLocations(_user.uid)
+                  context.read<LocationManagementCubit>().getSavedLocations()
                 ]);
                 return Container();
               } else if (state.status == LocationStatus.loading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state.status == LocationStatus.loaded ||
-                  state.status == LocationStatus.saved) {
+                  state.status == LocationStatus.saved ||
+                  state.status == LocationStatus.reordered) {
                 return ReorderableListView(
                     onReorder: (oldIndex, newIndex) {
                       context
                           .read<LocationManagementCubit>()
                           .reorderLocationsList(oldIndex, newIndex);
                     },
-                    footer: ElevatedButton(
-                        onPressed: () => context
-                            .read<LocationManagementCubit>()
-                            .saveLocationsToDataBase(_user.uid),
-                        child: const Text('Save')),
+                    footer: state.status == LocationStatus.reordered
+                        ? ElevatedButton(
+                            onPressed: () => context
+                                .read<LocationManagementCubit>()
+                                .saveLocationsToDataBase(),
+                            child: const Text('Save'))
+                        : null,
                     children: [
                       for (Location item in state.savedLocations)
                         Dismissible(
@@ -91,7 +86,7 @@ class _LocationView extends StatelessWidget {
                             int index = state.savedLocations.indexOf(item);
                             context
                                 .read<LocationManagementCubit>()
-                                .removeLocationFromList(index, _user.uid);
+                                .removeLocationFromList(index);
                           },
                           background: Container(
                             color: Colors.red,

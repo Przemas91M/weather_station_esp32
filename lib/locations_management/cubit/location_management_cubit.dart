@@ -10,12 +10,13 @@ class LocationManagementCubit extends Cubit<LocationManagementState> {
   final WeatherRepository _weatherRepository;
   LocationManagementCubit({required weatherRepository})
       : _weatherRepository = weatherRepository,
-        super(LocationManagementState.initial());
+        super(LocationManagementState.initial()) {
+    getSavedLocations();
+  }
 
-  Future<void> getSavedLocations(String uid) async {
+  Future<void> getSavedLocations() async {
     emit(state.copyWith(status: LocationStatus.loading));
-    List<Location> locations =
-        await _weatherRepository.getUserSavedLocations(uid);
+    List<Location> locations = await _weatherRepository.getUserSavedLocations();
     emit(state.copyWith(
         status: LocationStatus.loaded, savedLocations: locations));
   }
@@ -30,32 +31,32 @@ class LocationManagementCubit extends Cubit<LocationManagementState> {
       Location item = locations.removeAt(oldIndex);
       locations.insert(newIndex, item);
       emit(state.copyWith(
-          status: LocationStatus.loaded, savedLocations: locations));
+          status: LocationStatus.reordered, savedLocations: locations));
     }
   }
 
-  void removeLocationFromList(int index, String uid) {
+  void removeLocationFromList(int index) {
     emit(state.copyWith(status: LocationStatus.loading));
     List<Location> locations = state.savedLocations;
     if (locations.isNotEmpty) {
       locations.removeAt(index);
-      _weatherRepository.saveUserSavedLocations(uid, locations);
+      _weatherRepository.saveUserSavedLocations(locations);
       emit(state.copyWith(
           status: LocationStatus.loaded, savedLocations: locations));
     }
   }
 
-  void addAndSaveLocations(Location location, String uid) {
+  void addAndSaveLocations(Location location) {
     List<Location> locations = state.savedLocations.toList();
     locations.add(location);
     emit(state.copyWith(savedLocations: locations));
-    saveLocationsToDataBase(uid);
+    saveLocationsToDataBase();
   }
 
-  void saveLocationsToDataBase(String uid) async {
+  void saveLocationsToDataBase() async {
     emit(state.copyWith(status: LocationStatus.loading));
-    bool done = await _weatherRepository.saveUserSavedLocations(
-        uid, state.savedLocations);
+    bool done =
+        await _weatherRepository.saveUserSavedLocations(state.savedLocations);
     done
         ? emit(state.copyWith(status: LocationStatus.saved))
         : emit(state.copyWith(

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:weather_station_esp32/locations_management/cubit/location_management_cubit.dart';
 import 'package:weather_station_esp32/locations_management/view/location_management.dart';
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
@@ -16,23 +17,39 @@ class WeatherMainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          WeatherBloc(weatherRepository: context.read<WeatherRepository>()),
-      //..add(InitializeWeather()),
-      child: const MainPage(),
-    );
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => WeatherBloc(
+                weatherRepository: context.read<WeatherRepository>()),
+            //..add(InitializeWeather()),
+          ),
+          BlocProvider(
+              create: (context) => LocationManagementCubit(
+                  weatherRepository: context.read<
+                      WeatherRepository>()) //this gets the data on creation
+              ),
+        ],
+        child: BlocListener<LocationManagementCubit, LocationManagementState>(
+            listener: (context, state) {
+              if (state.status == LocationStatus.loaded) {
+                if (state.savedLocations.isEmpty) {
+                  //call an event to weather bloc to show blank page with arrow pointing to add new direction
+                } else {
+                  //subscribe to the station - for now, later add station presence checking and react to that
+                  context.read<WeatherBloc>().add(SubscribeNewLocation(
+                      location: state.savedLocations.first));
+                }
+              }
+            },
+            child: const MainPage()));
   }
 }
 
-class MainPage extends StatefulWidget {
+//here we are already subscribed and receiving weather data when station data changes.
+class MainPage extends StatelessWidget {
   const MainPage({super.key});
 
-  @override
-  State<MainPage> createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -40,6 +57,8 @@ class _MainPageState extends State<MainPage> {
     var localeVocabulary = AppLocalizations.of(context);
     Intl.defaultLocale = locale.languageCode;
     User? user = context.select((AppBloc bloc) => bloc.state.user);
+    final locationManagementBloc =
+        BlocProvider.of<LocationManagementCubit>(context);
     bool temperatureUnits =
         context.watch<SettingsBloc>().settingsMap['celsius'] ?? true;
     bool windSpeedUnits =
@@ -47,36 +66,33 @@ class _MainPageState extends State<MainPage> {
     bool precipUnits =
         context.watch<SettingsBloc>().settingsMap['milimeters'] ?? true;
 
-    return Scaffold(
-      drawer: _Drawer(
-        user: user,
-        localeVocabulary: localeVocabulary,
-      ), //TODO add drawer items and widgets
-      backgroundColor: theme.colorScheme.background,
-      appBar: AppBar(
-        scrolledUnderElevation: 0.0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        actions: [
-          IconButton(
-              onPressed: () =>
-                  context.read<AppBloc>().add(AppLogOutRequested()),
-              icon: const Icon(Icons.exit_to_app))
-        ],
-        title: const Text(
-          'Koszalin',
-        ),
-        centerTitle: true,
-      ),
-      body: BlocConsumer<WeatherBloc, WeatherState>(
-          listenWhen: (previous, current) {
-            return previous.status == WeatherStatus.initial &&
-                current.status == WeatherStatus.loading;
-          },
-          listener: (context, state) {
-            BlocProvider.of<AppBloc>(context).add(RefreshUser());
-          },
-          bloc: context.read<WeatherBloc>(),
-          builder: (context, state) {
+    return BlocBuilder<WeatherBloc, WeatherState>(
+      builder: (context, state) {
+        return Scaffold(
+          drawer: BlocProvider.value(
+              value: locationManagementBloc,
+              child: _Drawer(
+                user: user,
+                localeVocabulary: localeVocabulary,
+              )),
+          backgroundColor: theme.colorScheme.background,
+          appBar: AppBar(
+            scrolledUnderElevation: 0.0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            actions: [
+              IconButton(
+                  onPressed: () =>
+                      context.read<AppBloc>().add(AppLogOutRequested()),
+                  icon: const Icon(Icons.exit_to_app))
+            ],
+            title: Text(
+              state.currentLocation?.name ?? '',
+            ),
+            centerTitle: true,
+          ),
+          body:
+              BlocBuilder<WeatherBloc, WeatherState>(builder: (context, state) {
             if (state.status == WeatherStatus.loading) {
               return const Center(
                   child:
@@ -85,7 +101,7 @@ class _MainPageState extends State<MainPage> {
               return const Center(
                   child:
                       Text('App loading error!\n Check internet connection!'));
-            } else if (state.status == WeatherStatus.loaded) {
+            } else if (state.status == WeatherStatus.loadedStation) {
               return SingleChildScrollView(
                 child: Container(
                   decoration: const BoxDecoration(color: Colors.transparent),
@@ -98,19 +114,21 @@ class _MainPageState extends State<MainPage> {
                       const SizedBox(height: 5.0),
                       //big widget showing current weather from station
                       GestureDetector(
-                        child: StationReadingsCard(
-                          currentWeather: state.currentWeather!,
-                          reading: state.newestStationReadings!.last,
-                          temperatureUnits: temperatureUnits,
-                        ),
-                        onTap: () => showModalBottomSheet(
-                            backgroundColor: theme.colorScheme.background,
-                            isScrollControlled: true,
-                            enableDrag: true,
-                            showDragHandle: true,
-                            context: context,
-                            builder: (context) => StationBottomModalSheet()),
-                      ),
+                          child: StationReadingsCard(
+                            currentWeather: state.currentWeather!,
+                            reading: state.newestStationReadings!.last,
+                            temperatureUnits: temperatureUnits,
+                          ),
+                          onTap: () => showModalBottomSheet(
+                                backgroundColor: theme.colorScheme.background,
+                                isScrollControlled: true,
+                                enableDrag: true,
+                                showDragHandle: true,
+                                context: context,
+                                builder: (context) => BlocProvider.value(
+                                    value: locationManagementBloc,
+                                    child: const StationBottomModalSheet()),
+                              )),
                       TodaySummaryCard(
                           today: state.weatherForecast?.last,
                           rainUnits: precipUnits,
@@ -145,6 +163,8 @@ class _MainPageState extends State<MainPage> {
               return Container();
             }
           }),
+        );
+      },
     );
   }
 }
@@ -206,17 +226,44 @@ class _Drawer extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => LocationManagement(
-                              user: user!,
-                            )));
+                        builder: (context) => BlocProvider.value(
+                            value: context.read<LocationManagementCubit>(),
+                            child: const LocationManagement())));
               }),
-          ListTile(
-            leading: const Icon(Icons.location_on),
-            title: Text('Koszalin', style: theme.textTheme.bodyLarge),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
+          BlocBuilder<LocationManagementCubit, LocationManagementState>(
+              builder: (context, state) {
+            if (state.status == LocationStatus.initial) {
+              Future.wait([
+                context.read<LocationManagementCubit>().getSavedLocations()
+              ]);
+              return Container();
+            } else if (state.status == LocationStatus.loading) {
+              return const CircularProgressIndicator(
+                color: Colors.white,
+              );
+            } else if (state.status == LocationStatus.loaded) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var location in state.savedLocations)
+                    ListTile(
+                      leading: location.hasStation
+                          ? const Icon(Icons.location_on)
+                          : const Icon(Icons.location_off),
+                      title:
+                          Text(location.name, style: theme.textTheme.bodyLarge),
+                      onTap: () {
+                        Navigator.pop(
+                            context); //TODO add new view with selected location
+                      },
+                    )
+                ],
+              );
+            } else {
+              return Container();
+            }
+          }),
           const Divider(
             height: 2.0,
           ),
