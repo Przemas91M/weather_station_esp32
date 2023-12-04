@@ -7,6 +7,7 @@ import 'package:weather_station_esp32/locations_management/view/location_managem
 import 'package:weather_station_esp32/weather/bloc/weather_bloc.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:weather_station_esp32/weather/widgets/current_weather_card.dart';
 
 import '../../settings/bloc/settings_bloc.dart';
 import '../../weather/widgets/widgets.dart';
@@ -57,8 +58,6 @@ class MainPage extends StatelessWidget {
     var localeVocabulary = AppLocalizations.of(context);
     Intl.defaultLocale = locale.languageCode;
     User? user = context.select((AppBloc bloc) => bloc.state.user);
-    final locationManagementBloc =
-        BlocProvider.of<LocationManagementCubit>(context);
     bool temperatureUnits =
         context.watch<SettingsBloc>().settingsMap['celsius'] ?? true;
     bool windSpeedUnits =
@@ -67,10 +66,10 @@ class MainPage extends StatelessWidget {
         context.watch<SettingsBloc>().settingsMap['milimeters'] ?? true;
 
     return BlocBuilder<WeatherBloc, WeatherState>(
-      builder: (context, state) {
+      builder: (blocBuilderContext, state) {
         return Scaffold(
           drawer: BlocProvider.value(
-              value: locationManagementBloc,
+              value: BlocProvider.of<LocationManagementCubit>(context),
               child: _Drawer(
                 user: user,
                 localeVocabulary: localeVocabulary,
@@ -91,28 +90,28 @@ class MainPage extends StatelessWidget {
             ),
             centerTitle: true,
           ),
-          body:
-              BlocBuilder<WeatherBloc, WeatherState>(builder: (context, state) {
-            if (state.status == WeatherStatus.loading) {
-              return const Center(
-                  child:
-                      CircularProgressIndicator()); // TODO add better loading animation
-            } else if (state.status == WeatherStatus.error) {
+          body: Builder(builder: (contentContext) {
+            if (state.status == WeatherStatus.loading ||
+                state.status == WeatherStatus.initial) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state.status == WeatherStatus.error) {
               return const Center(
                   child:
                       Text('App loading error!\n Check internet connection!'));
-            } else if (state.status == WeatherStatus.loadedStation) {
-              return SingleChildScrollView(
-                child: Container(
-                  decoration: const BoxDecoration(color: Colors.transparent),
-                  padding: const EdgeInsets.only(
-                      left: 20.0, top: 10.0, right: 25.0, bottom: 10.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 5.0),
-                      //big widget showing current weather from station
+            }
+            return SingleChildScrollView(
+              child: Container(
+                decoration: const BoxDecoration(color: Colors.transparent),
+                padding: const EdgeInsets.only(
+                    left: 20.0, top: 10.0, right: 25.0, bottom: 10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 5.0),
+                    //big widget showing current weather from station
+                    if (state.status == WeatherStatus.loadedStation)
                       GestureDetector(
                           child: StationReadingsCard(
                             currentWeather: state.currentWeather!,
@@ -125,22 +124,32 @@ class MainPage extends StatelessWidget {
                                 enableDrag: true,
                                 showDragHandle: true,
                                 context: context,
-                                builder: (context) => BlocProvider.value(
-                                    value: locationManagementBloc,
-                                    child: const StationBottomModalSheet()),
+                                builder: (stBotShtcontext) =>
+                                    RepositoryProvider.value(
+                                  value:
+                                      RepositoryProvider.of<WeatherRepository>(
+                                          context),
+                                  child: BlocProvider.value(
+                                      value: BlocProvider.of<
+                                          LocationManagementCubit>(context),
+                                      child: const StationBottomModalSheet()),
+                                ),
                               )),
-                      TodaySummaryCard(
-                          today: state.weatherForecast?.last,
-                          rainUnits: precipUnits,
-                          temperatureUnits: temperatureUnits,
-                          windUnits: windSpeedUnits),
-                      //second big widget with weather from forecast
-                      //next a list with weather forecast for 7 days, depending on location selected
-                      ForecastVerticalList(
-                        forecastList: state.weatherForecast!,
+                    if (state.status == WeatherStatus.loadedWithoutStation)
+                      CurrentWeatherCard(
+                          currentWeather: state.currentWeather!,
+                          temperatureUnits: temperatureUnits),
+                    TodaySummaryCard(
+                        today: state.weatherForecast?.last,
+                        rainUnits: precipUnits,
                         temperatureUnits: temperatureUnits,
-                      ),
-                      const SizedBox(height: 5),
+                        windUnits: windSpeedUnits),
+                    ForecastVerticalList(
+                      forecastList: state.weatherForecast!,
+                      temperatureUnits: temperatureUnits,
+                    ),
+                    const SizedBox(height: 5),
+                    if (state.status == WeatherStatus.loadedStation)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -152,16 +161,12 @@ class MainPage extends StatelessWidget {
                                   .newestStationReadings!.last.solarVoltage)
                         ],
                       ),
-
-                      //big cards with auxiliary readings (UV index, rain cubics, wind direction)
-                      //depending on screen size - everything should be scrollable
-                    ],
-                  ),
+                    //big cards with auxiliary readings (UV index, rain cubics, wind direction)
+                    //depending on screen size - everything should be scrollable
+                  ],
                 ),
-              );
-            } else {
-              return Container();
-            }
+              ),
+            );
           }),
         );
       },
@@ -178,6 +183,8 @@ class _Drawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    //final managementBloc = BlocProvider.of<LocationManagementCubit>(context);
+    //final repository = RepositoryProvider.of<WeatherRepository>(context);
     return Drawer(
       backgroundColor: theme.colorScheme.background,
       child: ListView(
@@ -217,19 +224,6 @@ class _Drawer extends StatelessWidget {
                   )
                 ],
               )),
-          ListTile(
-              leading: const Icon(Icons.add),
-              title: Text(localeVocabulary!.locations,
-                  style: theme.textTheme.bodyLarge),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => BlocProvider.value(
-                            value: context.read<LocationManagementCubit>(),
-                            child: const LocationManagement())));
-              }),
           BlocBuilder<LocationManagementCubit, LocationManagementState>(
               builder: (context, state) {
             if (state.status == LocationStatus.initial) {
@@ -241,25 +235,57 @@ class _Drawer extends StatelessWidget {
               return const CircularProgressIndicator(
                 color: Colors.white,
               );
-            } else if (state.status == LocationStatus.loaded) {
+            } else if (state.status == LocationStatus.loaded ||
+                state.status == LocationStatus.saved) {
               return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var location in state.savedLocations)
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     ListTile(
-                      leading: location.hasStation
-                          ? const Icon(Icons.location_on)
-                          : const Icon(Icons.location_off),
-                      title:
-                          Text(location.name, style: theme.textTheme.bodyLarge),
-                      onTap: () {
-                        Navigator.pop(
-                            context); //TODO add new view with selected location
-                      },
-                    )
-                ],
-              );
+                        leading: state.savedLocations.isEmpty
+                            ? const Icon(Icons.add)
+                            : const Icon(Icons.bookmarks),
+                        title: Text(
+                            state.savedLocations.isEmpty
+                                ? localeVocabulary!.locationsAddFirst
+                                : localeVocabulary!.locationsManagement,
+                            style: theme.textTheme.bodyLarge),
+                        trailing: const Icon(Icons.navigate_next),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (locMngContext) =>
+                                      RepositoryProvider.value(
+                                        value: RepositoryProvider.of<
+                                            WeatherRepository>(context),
+                                        child: BlocProvider.value(
+                                            value: BlocProvider.of<
+                                                    LocationManagementCubit>(
+                                                context),
+                                            child: const LocationManagement()),
+                                      )));
+                        }),
+                    for (var location in state.savedLocations)
+                      ListTile(
+                          leading: location.hasStation
+                              ? const Icon(Icons.location_on)
+                              : const Icon(Icons.location_off),
+                          title: Text(location.name,
+                              style: theme.textTheme.bodyLarge),
+                          onTap: () {
+                            if (location.hasStation) {
+                              context.read<WeatherBloc>().add(
+                                  SubscribeNewLocation(location: location));
+                            } else {
+                              context.read<WeatherBloc>().add(
+                                  NewLocationWithoutStation(
+                                      location: location));
+                            }
+                            Navigator.pop(context);
+                          })
+                  ]);
             } else {
               return Container();
             }
