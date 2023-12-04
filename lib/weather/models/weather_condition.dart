@@ -256,6 +256,13 @@ class WeatherCondition extends Equatable {
         conditionCodesMap[code]?['icon'], conditionCodesMap[code]?['color']);
   }
 
+  factory WeatherCondition.fromJson(Map json, Map condition) {
+    return WeatherCondition(
+        condition['day_text'],
+        conditionCodesMap[json['code']]?['icon'],
+        conditionCodesMap[json['code']]?['color']);
+  }
+
   @override
   List<Object?> get props => [condition];
 }
