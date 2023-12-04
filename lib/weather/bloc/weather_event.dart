@@ -21,4 +21,7 @@ class SubscribeNewLocation extends WeatherEvent {
 
 class RefreshWeatherForecast extends WeatherEvent {}
 
-class NewLocationWithoutStation extends WeatherEvent {}
+class NewLocationWithoutStation extends WeatherEvent {
+  final Location location;
+  const NewLocationWithoutStation({required this.location});
+}
