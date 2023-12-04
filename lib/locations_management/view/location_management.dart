@@ -11,11 +11,12 @@ class LocationManagement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    return /*BlocProvider(
       create: (context) => LocationManagementCubit(
           weatherRepository: context.read<WeatherRepository>()),
       child: const _LocationView(),
-    );
+    );*/
+        const _LocationView();
   }
 }
 
@@ -23,7 +24,8 @@ class _LocationView extends StatelessWidget {
   const _LocationView();
   @override
   Widget build(BuildContext context) {
-    final bloc = BlocProvider.of<LocationManagementCubit>(context);
+    //final bloc = BlocProvider.of<LocationManagementCubit>(context);
+    //final repository = RepositoryProvider.of<WeatherRepository>(context);
     return Scaffold(
         appBar: AppBar(
           scrolledUnderElevation: 0.0,
@@ -37,9 +39,15 @@ class _LocationView extends StatelessWidget {
                     showDragHandle: true,
                     isScrollControlled: true,
                     context: context,
-                    builder: (context) {
-                      return BlocProvider.value(
-                          value: bloc, child: LocationSearchSheet());
+                    builder: (locFindContext) {
+                      return RepositoryProvider.value(
+                        value:
+                            RepositoryProvider.of<WeatherRepository>(context),
+                        child: BlocProvider.value(
+                            value: BlocProvider.of<LocationManagementCubit>(
+                                context),
+                            child: const LocationSearchSheet()),
+                      );
                     }),
                 icon: const Icon(Icons.add))
           ],
@@ -55,60 +63,64 @@ class _LocationView extends StatelessWidget {
           },
           child: BlocBuilder<LocationManagementCubit, LocationManagementState>(
             builder: (context, state) {
-              if (state.status == LocationStatus.initial) {
-                Future.wait([
-                  context.read<LocationManagementCubit>().getSavedLocations()
-                ]);
-                return Container();
-              } else if (state.status == LocationStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state.status == LocationStatus.loaded ||
-                  state.status == LocationStatus.saved ||
-                  state.status == LocationStatus.reordered) {
-                return ReorderableListView(
-                    onReorder: (oldIndex, newIndex) {
-                      context
-                          .read<LocationManagementCubit>()
-                          .reorderLocationsList(oldIndex, newIndex);
-                    },
-                    footer: state.status == LocationStatus.reordered
-                        ? ElevatedButton(
-                            onPressed: () => context
-                                .read<LocationManagementCubit>()
-                                .saveLocationsToDataBase(),
-                            child: const Text('Save'))
-                        : null,
-                    children: [
-                      for (Location item in state.savedLocations)
-                        Dismissible(
-                          key: Key(item.name.toString()),
-                          onDismissed: (direction) {
-                            int index = state.savedLocations.indexOf(item);
-                            context
-                                .read<LocationManagementCubit>()
-                                .removeLocationFromList(index);
-                          },
-                          background: Container(
-                            color: Colors.red,
-                            child: const Icon(Icons.delete),
-                          ),
-                          child: ListTile(
-                              key: ValueKey(item.url.toString()),
-                              title: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('${item.name}, ${item.country}'),
-                                  const SizedBox(width: 10),
-                                  item.hasStation
-                                      ? const Icon(Icons.location_on)
-                                      : const Icon(Icons.location_off)
-                                ],
-                              ),
-                              trailing: const Icon(Icons.menu)),
-                        )
-                    ]);
-              } else {
-                return Container();
+              switch (state.status) {
+                case LocationStatus.initial:
+                  Future.wait([
+                    context.read<LocationManagementCubit>().getSavedLocations()
+                  ]);
+                  return Container();
+
+                case LocationStatus.error:
+                  return const Center(child: Text('Error'));
+
+                case LocationStatus.loading:
+                  return const Center(child: CircularProgressIndicator());
+
+                case LocationStatus.loaded ||
+                      LocationStatus.saved ||
+                      LocationStatus.reordered:
+                  return ReorderableListView(
+                      onReorder: (oldIndex, newIndex) {
+                        context
+                            .read<LocationManagementCubit>()
+                            .reorderLocationsList(oldIndex, newIndex);
+                      },
+                      footer: state.status == LocationStatus.reordered
+                          ? ElevatedButton(
+                              onPressed: () => context
+                                  .read<LocationManagementCubit>()
+                                  .saveLocationsToDataBase(),
+                              child: const Text('Save'))
+                          : null,
+                      children: [
+                        for (Location item in state.savedLocations)
+                          Dismissible(
+                            key: Key(item.name.toString()),
+                            onDismissed: (direction) {
+                              int index = state.savedLocations.indexOf(item);
+                              context
+                                  .read<LocationManagementCubit>()
+                                  .removeLocationFromList(index);
+                            },
+                            background: Container(
+                              color: Colors.red,
+                              child: const Icon(Icons.delete),
+                            ),
+                            child: ListTile(
+                                key: ValueKey(item.url.toString()),
+                                title: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('${item.name}, ${item.country}'),
+                                    const SizedBox(width: 10),
+                                    item.hasStation
+                                        ? const Icon(Icons.location_on)
+                                        : const Icon(Icons.location_off)
+                                  ],
+                                ),
+                                trailing: const Icon(Icons.menu)),
+                          )
+                      ]);
               }
             },
           ),
