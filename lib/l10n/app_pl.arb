@@ -27,5 +27,6 @@
     "signUp": "Zarejestruj się",
     "alreadyMember": "Masz już konto?",
     "signInLink": "Zaloguj się tutaj.",
-    "locations": "Dodaj nową lokalizację"
+    "locationsManagement": "Moje miejsca",
+    "locationsAddFirst": "Dodaj pierwsze miejsce"
 }
