@@ -37,14 +37,14 @@ class LocationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(
-            width: 90,
+            width: 30,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add),
+                Icon(Icons.bookmark_add),
                 Text(
-                  'Click to save location',
+                  'Add',
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.visible,
                 )
