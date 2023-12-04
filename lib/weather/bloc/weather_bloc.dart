@@ -22,17 +22,16 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     //subscribe to database stream - create new stream for each station - maybe do this in a initialisation event?
   }
   final WeatherRepository weatherRepository;
-  final StreamController _streamController = StreamController();
-  late final StreamSubscription<dynamic> _databaseSubscription;
+  StreamController _streamController = StreamController();
+  late StreamSubscription<dynamic> _databaseSubscription;
 
   //since this is called only when we are subscribed to a location, currentLocation will be not null here
   FutureOr<void> _stationDataChanged(
       StationDataChanged event, Emitter<WeatherState> emit) async {
     emit(state.copyWith(status: WeatherStatus.loading));
     CurrentWeather currentWeather =
-        await weatherRepository.getCurrentWeather(state.currentLocation!.name);
-    List<Forecast> weatherForecast =
-        weatherRepository.getWeatherForecast(state.currentLocation!.name);
+        await weatherRepository.getCurrentWeather(state.currentLocation!.url);
+    List<Forecast> weatherForecast = weatherRepository.getWeatherForecast();
     emit(state.copyWith(
         status: WeatherStatus.loadedStation,
         newestStationReadings: event.data,
@@ -47,6 +46,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       _databaseSubscription.cancel();
       _streamController.close();
     }
+    _streamController = StreamController();
     _streamController.addStream(
         weatherRepository.databaseDataChanged(event.location.name, 10));
     //_databaseSubscription.cancel();
@@ -62,9 +62,8 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       RefreshWeatherForecast event, Emitter<WeatherState> emit) async {
     emit(state.copyWith(status: WeatherStatus.loading));
     CurrentWeather currentWeather =
-        await weatherRepository.getCurrentWeather(state.currentLocation!.name);
-    List<Forecast> weatherForecast =
-        weatherRepository.getWeatherForecast(state.currentLocation!.name);
+        await weatherRepository.getCurrentWeather(state.currentLocation!.url);
+    List<Forecast> weatherForecast = weatherRepository.getWeatherForecast();
     emit(state.copyWith(
         status: WeatherStatus.loadedWithoutStation,
         currentWeather: currentWeather,
@@ -78,16 +77,16 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
         status: WeatherStatus.loading,
         historicalStationData: List.empty(),
         newestStationReadings: List.empty(),
-        currentWeather: null));
+        currentWeather: null,
+        currentLocation: event.location));
     if (_streamController.hasListener) {
       _databaseSubscription.cancel();
       _streamController.close();
     }
     //get only current weather and forecast for this location
     CurrentWeather currentWeather =
-        await weatherRepository.getCurrentWeather(state.currentLocation!.name);
-    List<Forecast> weatherForecast =
-        weatherRepository.getWeatherForecast(state.currentLocation!.name);
+        await weatherRepository.getCurrentWeather(state.currentLocation!.url);
+    List<Forecast> weatherForecast = weatherRepository.getWeatherForecast();
     emit(state.copyWith(
         status: WeatherStatus.loadedWithoutStation,
         currentWeather: currentWeather,
