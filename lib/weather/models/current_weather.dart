@@ -11,6 +11,9 @@ class CurrentWeather {
   double windMph;
   double precipitationMm;
   double precipitationIn;
+  double pressure;
+  int humidity;
+  double uvIndex;
   int cloudCoverage;
   int lastUpdated;
 
@@ -24,12 +27,15 @@ class CurrentWeather {
       required this.feelsLikeF,
       required this.precipitationIn,
       required this.precipitationMm,
+      required this.pressure,
+      required this.humidity,
+      required this.uvIndex,
       required this.windKph,
       required this.windMph,
       required this.cloudCoverage,
       required this.lastUpdated});
 
-  factory CurrentWeather.fromJson(Map json) {
+  factory CurrentWeather.fromJson(Map json, Map condition) {
     return CurrentWeather(
         temperatureC: json['temp_c'],
         temperatureF: json['temp_f'],
@@ -37,10 +43,14 @@ class CurrentWeather {
         feelsLikeF: json['feelslike_f'],
         precipitationMm: json['precip_mm'],
         precipitationIn: json['precip_in'],
+        pressure: json['pressure_mb'],
+        humidity: json['humidity'],
+        uvIndex: json['uv'],
         windKph: json['wind_kph'],
         windMph: json['wind_mph'],
         cloudCoverage: json['cloud'],
         lastUpdated: json['last_updated_epoch'],
-        weatherCondition: WeatherCondition.fromCode(json['condition']['code']));
+        weatherCondition:
+            WeatherCondition.fromJson(json['condition'], condition));
   }
 }
