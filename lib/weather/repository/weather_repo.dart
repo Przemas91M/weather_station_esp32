@@ -1,9 +1,11 @@
 import "dart:async";
 import "dart:convert";
+import "dart:ui";
 
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:firebase_database/firebase_database.dart";
+import "package:flutter/services.dart";
 import "package:http/http.dart" as http;
 import "package:weather_station_esp32/locations_management/models/location.dart";
 import "package:weather_station_esp32/weather/models/models.dart";
@@ -13,9 +15,13 @@ class WeatherRepository {
   String openWeatherAPI = 'eb4f9d0a14c5403fba4202400231411';
   FirebaseDatabase stationDatabase = FirebaseDatabase.instance;
   FirebaseFirestore firestoreDatabase = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> conditionsTranslations = [];
+  final Locale appLanguage;
   List<dynamic> forecast = [];
 
-  WeatherRepository({required this.user});
+  WeatherRepository({required this.user, required this.appLanguage}) {
+    getConditionsTranslationsFromJson();
+  }
 
   Stream<List<StationReading>> databaseDataChanged(String cityName, int limit) {
     return stationDatabase
@@ -78,14 +84,15 @@ class WeatherRepository {
 
   Future<CurrentWeather> getCurrentWeather(String cityName) async {
     String url =
-        'http://api.weatherapi.com/v1/forecast.json?key=$openWeatherAPI&q=$cityName&days=8&aqi=no&alerts=no';
+        'http://api.weatherapi.com/v1/forecast.json?key=$openWeatherAPI&q=$cityName&days=8&aqi=no&alerts=no&lang=${appLanguage.languageCode}';
     try {
       http.Response response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final Map<String, dynamic> current =
             jsonDecode(response.body)['current'];
         forecast = jsonDecode(response.body)['forecast']['forecastday'];
-        return CurrentWeather.fromJson(current);
+        return CurrentWeather.fromJson(current,
+            getConditionTranslationFromCode(current['condition']['code']));
       } else {
         throw Exception('Failed to load weather data!');
       }
@@ -109,7 +116,7 @@ class WeatherRepository {
     return stations;
   }
 
-  List<Forecast> getWeatherForecast(String cityName) {
+  List<Forecast> getWeatherForecast() {
     List<Forecast> forecastList = [];
     if (forecast.isNotEmpty) {
       List<Map<String, dynamic>> hourlyTempC = [];
@@ -142,8 +149,10 @@ class WeatherRepository {
           totalPrecipIN: value['day']['totalprecip_in'],
           avgHumidity: value['day']['avghumidity'],
           uvIndex: value['day']['uv'],
-          condition:
-              WeatherCondition.fromCode(value['day']['condition']['code']),
+          condition: WeatherCondition.fromJson(
+              value['day']['condition'],
+              getConditionTranslationFromCode(
+                  value['day']['condition']['code'])),
           hourlyTempC: hourlyTempC.toList(),
           hourlyTempF: hourlyTempF.toList(),
           hourlyPressure: hourlyPressure.toList(),
@@ -237,5 +246,20 @@ class WeatherRepository {
     } catch (e) {
       throw Exception(e.toString());
     }
+  }
+
+  Future<void> getConditionsTranslationsFromJson() async {
+    conditionsTranslations = await rootBundle
+        .loadString('assets/conditions.json')
+        .then((value) => (jsonDecode(value) as List)
+            .map((e) => e as Map<String, dynamic>)
+            .toList());
+  }
+
+  Map<String, dynamic> getConditionTranslationFromCode(int code) {
+    return (conditionsTranslations.firstWhere(
+            (element) => element['code'] == code)['languages'] as List)
+        .firstWhere(
+            (element) => element['lang_iso'] == appLanguage.languageCode);
   }
 }
