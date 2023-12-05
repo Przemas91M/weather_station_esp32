@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_station_esp32/style/styling.dart';
-import 'package:weather_station_esp32/weather/cubit/station_sheet_cubit.dart';
+import 'package:weather_station_esp32/weather/widgets/station_bottom_sheet/cubit/station_sheet_cubit.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 
-import '../models/models.dart';
+import '../../models/models.dart';
 
+/// Selected weather information to be displayed in the chart.
 enum InputDataType {
   temperatureInside,
   temperatureOutSide,
@@ -17,6 +18,12 @@ enum InputDataType {
   lux,
 }
 
+/// Displays bottom sheet containing further details about weather read from weather station.
+/// Each graph shows different weather information based on [InputDataType].
+/// Creates a [StationSheetCubit], which requires access to [WeatherRepository]
+/// ```dart
+/// StationBottomModalSheet(weatherRepository: WeatherRepository repository);
+/// ```
 class StationBottomModalSheet extends StatelessWidget {
   const StationBottomModalSheet({super.key});
 
@@ -30,19 +37,21 @@ class StationBottomModalSheet extends StatelessWidget {
   }
 }
 
+/// Builds widgets based on [StationSheetCubit] state.
 class _BottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     return BlocBuilder<StationSheetCubit, StationSheetCubitState>(
       builder: (context, state) {
         if (state.status == StationSheetStatus.loading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: CircularProgressIndicator(
+            color: ColorPalette.lightBlue,
+          ));
         } else if (state.status == StationSheetStatus.loaded) {
           return SingleChildScrollView(
             child: _DataChartsView(
               data: state.stationHistoricalData ?? [],
-              theme: theme,
             ),
           );
         } else if (state.status == StationSheetStatus.initial) {
@@ -57,13 +66,17 @@ class _BottomSheet extends StatelessWidget {
   }
 }
 
+/// Shows charts containing past reading data from weather station.
+/// Requires [data] to generate charts.
+/// Every weather parameter is displayed in a separate chart.
+/// User can tap on a chart to read more detail from a single reading.
 class _DataChartsView extends StatelessWidget {
   const _DataChartsView({
     required this.data,
-    required this.theme,
   });
+
+  /// Data from weather station to show in chart.
   final List<StationReading> data;
-  final ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +109,6 @@ class _DataChartsView extends StatelessWidget {
               child: _DataChart(
             data: insideTemperatures,
             timestamp: timestamps,
-            theme: theme,
             title: 'Temperatura',
             dataType: InputDataType.temperatureInside,
           )),
@@ -104,7 +116,6 @@ class _DataChartsView extends StatelessWidget {
               child: _DataChart(
             data: humidity,
             timestamp: timestamps,
-            theme: theme,
             title: 'Wilgotność',
             dataType: InputDataType.humidity,
           )),
@@ -118,12 +129,10 @@ class _DataChart extends StatelessWidget {
   const _DataChart(
       {required this.data,
       required this.timestamp,
-      required this.theme,
       required this.title,
       required this.dataType});
   final List<double> data;
   final List<double> timestamp;
-  final ThemeData theme;
   final String title;
   final InputDataType dataType;
   @override
@@ -148,18 +157,18 @@ class _DataChart extends StatelessWidget {
       padding: const EdgeInsets.only(left: 20, top: 10, right: 10),
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
       decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-                color: theme.colorScheme.outline,
+                color: Theme.of(context).colorScheme.outline,
                 offset: const Offset(3.0, 3.0),
                 blurRadius: 5)
           ]),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Text(
           title, //change this to insert automatically
-          style: theme.textTheme.displayMedium,
+          style: Theme.of(context).textTheme.displayMedium,
         ),
         const Divider(height: 20, endIndent: 10),
         const SizedBox(height: 20),
