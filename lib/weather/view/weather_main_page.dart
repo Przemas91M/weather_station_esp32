@@ -183,8 +183,6 @@ class _Drawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    //final managementBloc = BlocProvider.of<LocationManagementCubit>(context);
-    //final repository = RepositoryProvider.of<WeatherRepository>(context);
     return Drawer(
       backgroundColor: theme.colorScheme.background,
       child: ListView(

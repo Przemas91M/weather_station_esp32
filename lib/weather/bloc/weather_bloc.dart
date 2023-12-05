@@ -19,13 +19,22 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     on<SubscribeNewLocation>(_subscribeNewLocation);
     on<RefreshWeatherForecast>(_refreshWeatherForecast);
     on<NewLocationWithoutStation>(_newLocationWithoutStation);
-    //subscribe to database stream - create new stream for each station - maybe do this in a initialisation event?
   }
+
+  /// Weather repository object for data saving and loading.
   final WeatherRepository weatherRepository;
+
+  /// Controls stream from specific weather station.
   StreamController _streamController = StreamController();
+
+  /// Stream subscription to read weather station data.
   late StreamSubscription<dynamic> _databaseSubscription;
 
-  //since this is called only when we are subscribed to a location, currentLocation will be not null here
+  /// Called when weather station stores new data in Firebase
+  /// and stream exposes new [event] containing station readings.
+  ///
+  /// Fetches current weather data from repository and stores recent station
+  /// reading in [state] variable.
   FutureOr<void> _stationDataChanged(
       StationDataChanged event, Emitter<WeatherState> emit) async {
     emit(state.copyWith(status: WeatherStatus.loading));
@@ -39,6 +48,10 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
         weatherForecast: weatherForecast));
   }
 
+  /// Cancels current stream subscription and subscribes to new Firebase stream
+  /// exposing data, when weather station from selected city uploads new data.
+  ///
+  /// Used when user selects new location and it has a weather station installed.
   FutureOr<void> _subscribeNewLocation(
       SubscribeNewLocation event, Emitter<WeatherState> emit) {
     emit(state.copyWith(status: WeatherStatus.locationChanged));
@@ -57,7 +70,10 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
         status: WeatherStatus.loading, currentLocation: event.location));
   }
 
-  //used only when station is not present
+  /// Requests for updated weather data and forecast from WeatherAPI.
+  ///
+  /// Used when location doesn't have installed weather station and user
+  /// requests to refresh data.
   FutureOr<void> _refreshWeatherForecast(
       RefreshWeatherForecast event, Emitter<WeatherState> emit) async {
     emit(state.copyWith(status: WeatherStatus.loading));
@@ -70,6 +86,11 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
         weatherForecast: weatherForecast));
   }
 
+  /// Removes all stored weather data, closes stream and loads new weather and
+  /// forecast data for selected location.
+  ///
+  /// Used when user requests location change and selected location doesn't have
+  /// a weather station installed.
   FutureOr<void> _newLocationWithoutStation(
       event, Emitter<WeatherState> emit) async {
     //erase all station data and cancel current stream (if subscribed)

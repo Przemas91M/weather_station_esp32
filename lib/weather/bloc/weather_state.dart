@@ -1,5 +1,6 @@
 part of 'weather_bloc.dart';
 
+///All weather screen states
 enum WeatherStatus {
   initial,
   locationChanged,
@@ -11,13 +12,25 @@ enum WeatherStatus {
   error,
 }
 
+/// Keeps all weather screen states and necessary data.
 class WeatherState extends Equatable {
   final WeatherStatus status;
+
+  /// City data describing currently selected location
   final Location? currentLocation;
+
+  /// Last reading list uploaded by weather station in selected location.
   final List<StationReading>? newestStationReadings;
+
+  /// List of past readings queued from database.
   final List<StationReading>? historicalStationData;
+
+  /// Current weather data stored in [CurrentWeather] object.
   final CurrentWeather? currentWeather;
+
+  /// Weather forecast list, sorted by day, requested from WeatherAPI, stored in [Forecast] object.
   final List<Forecast>? weatherForecast;
+
   const WeatherState(
       {required this.status,
       required this.currentLocation,
@@ -26,7 +39,8 @@ class WeatherState extends Equatable {
       required this.historicalStationData,
       required this.weatherForecast});
 
-  //initial state constructor
+  /// Initial state constructor.
+  /// Removes all data and sets state to initial.
   static WeatherState initial() => const WeatherState(
       currentLocation: null,
       currentWeather: null,
@@ -35,6 +49,8 @@ class WeatherState extends Equatable {
       historicalStationData: null,
       weatherForecast: null);
 
+  /// Creates a copy of this state with given fields.
+  /// Only non null fields are replaced.
   WeatherState copyWith(
           {WeatherStatus? status,
           Location? currentLocation,

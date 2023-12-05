@@ -10,19 +10,42 @@ import "package:http/http.dart" as http;
 import "package:weather_station_esp32/locations_management/models/location.dart";
 import "package:weather_station_esp32/weather/models/models.dart";
 
+/// Bloc Repository to handle Firebase and WeatherApi communication
+///
+/// Uses [User] object to retrieve or store user saved locations.
+/// Readings from stations are streamed from [FirebaseDatabase] reference.
+/// User data such as name or saved location are stored in [FirebaseFirestore]
+/// To translate weather condition app language object [Locale] is necessary.
 class WeatherRepository {
+  /// Stores user data provided from AppBloc.
   final User user;
+
+  /// API key for WeatherApi.
   String openWeatherAPI = 'eb4f9d0a14c5403fba4202400231411';
+
+  /// Reference to Firebase Realtime Database containing readings from all weather stations.
   FirebaseDatabase stationDatabase = FirebaseDatabase.instance;
+
+  /// Reference to Firebase Firestore Database containing user saved data.
   FirebaseFirestore firestoreDatabase = FirebaseFirestore.instance;
+
+  /// Stores multilingual weather condition translations loaded by [getConditionsTranslationsFromJson].
   List<Map<String, dynamic>> conditionsTranslations = [];
+
+  /// App language provided by AppBloc.
   final Locale appLanguage;
+
+  /// Stores forecast data loaded by [getCurrentWeather].
   List<dynamic> forecast = [];
 
   WeatherRepository({required this.user, required this.appLanguage}) {
-    getConditionsTranslationsFromJson();
+    getConditionsTranslationsFromJson(); //get big json data once and read from it when needed
   }
 
+  /// Map [limit] readings from station at [cityName] to [StationReading] object.
+  ///
+  /// This method is called everytime when a station uploads new data to firebase.
+  /// All reading values are mapped to a new [StationReading] object, then added to list.
   Stream<List<StationReading>> databaseDataChanged(String cityName, int limit) {
     return stationDatabase
         .ref('/Readings/$cityName')
@@ -52,6 +75,7 @@ class WeatherRepository {
     });
   }
 
+  //consider deleting this method!
   Future<List<StationReading>> getReadingsOnce(String path, int limit) async {
     List<StationReading> stationReadings = [];
     final snapshot = await stationDatabase
@@ -82,6 +106,11 @@ class WeatherRepository {
     return stationReadings;
   }
 
+  /// Requests current weather and weather forecast from WeatherApi in [cityName].
+  ///
+  /// Response from API contains current weather and weather forecast, which is separated into two variables.
+  /// Forecast is stored in global variable [forecast].
+  /// Current weather is returned as a [CurrentWeather] object.
   Future<CurrentWeather> getCurrentWeather(String cityName) async {
     String url =
         'http://api.weatherapi.com/v1/forecast.json?key=$openWeatherAPI&q=$cityName&days=8&aqi=no&alerts=no&lang=${appLanguage.languageCode}';
@@ -101,6 +130,8 @@ class WeatherRepository {
     }
   }
 
+  /// Fetches all installed physical stations information, such as location from Firebase.
+  /// Returns a list of Maps contatining downloaded data.
   Future<List<Map<String, dynamic>>> getStationsLocation() async {
     List<Map<String, dynamic>> stations = [];
     await firestoreDatabase
@@ -111,14 +142,18 @@ class WeatherRepository {
         stations.add(item.data());
       }
     }).onError((error, stackTrace) {
-      print(error.toString());
+      print(error.toString()); //TODO add error handling
     });
     return stations;
   }
 
+  /// Takes [forecast] data from global variable, fetched by [getCurrentWeather]
+  /// and maps selected parameters to a [Forecast] object list.
+  /// Each list entry is a single day forecast.
   List<Forecast> getWeatherForecast() {
     List<Forecast> forecastList = [];
     if (forecast.isNotEmpty) {
+      //lists containing forecast data for each hour
       List<Map<String, dynamic>> hourlyTempC = [];
       List<Map<String, dynamic>> hourlyTempF = [];
       List<Map<String, dynamic>> hourlyPressure = [];
@@ -171,6 +206,8 @@ class WeatherRepository {
     return forecastList;
   }
 
+  /// Fetches raw user saved cities from Firestore Database.
+  /// Uses [User] object to get current user saved data.
   Future<List<dynamic>> getUserSavedData() async {
     return firestoreDatabase
         .collection('users')
@@ -183,11 +220,14 @@ class WeatherRepository {
       }
       return data['cities'] as List<dynamic>;
     }).onError((error, stackTrace) {
-      print(error.toString());
+      print(error.toString()); //TODO implement error handling
       return [];
     });
   }
 
+  /// Uses data fetched by [getUserSavedData]
+  /// and maps selected values to a [Location] object list.
+  /// Also checks whether location has a weather station installed.
   Future<List<Location>> getUserSavedLocations() async {
     List<Location> locations = [];
     List<dynamic> userData = await getUserSavedData();
@@ -205,6 +245,9 @@ class WeatherRepository {
     return locations;
   }
 
+  ///Takes a list of [locations] and saves it to current [user] Firebase Firestore.
+  ///User can bookmark a location to track it's current weather and forecast.
+  //TODO implement error handling and remove bool return value
   Future<bool> saveUserSavedLocations(List<Location> locations) async {
     List<Map<String, dynamic>> cities = [];
     for (Location loc in locations) {
@@ -214,12 +257,18 @@ class WeatherRepository {
         .collection('users')
         .doc(user.uid)
         .set({'cities': cities}).onError((error, stackTrace) {
-      print(error.toString());
+      print(error.toString()); //TODO implement error handling
       return false;
     });
     return true;
   }
 
+  /// Finds a city by a provided name [query].
+  ///
+  /// Used to find and bookmark new city for user to check it's weather.
+  /// Sends a request to WeatherAPI to return a list of cities matching [query].
+  /// This list is mapped to a [Location] object list.
+  /// Also checks wheter found locations have a weather station installed.
   Future<List<Location>> locationFinder(String query) async {
     String url =
         'http://api.weatherapi.com/v1/search.json?key=$openWeatherAPI&q=$query';
@@ -248,6 +297,11 @@ class WeatherRepository {
     }
   }
 
+  /// Loads a multilingual condition list in JSON format to [conditionsTranslations] map list.
+  /// This file is stored in assets folder.
+  /// Contains a short weather description based on a code in multiple languages.
+  /// Condition description returned from WeatherAPI response fields doesn't
+  /// support special characters in some languages.
   Future<void> getConditionsTranslationsFromJson() async {
     conditionsTranslations = await rootBundle
         .loadString('assets/conditions.json')
@@ -256,10 +310,16 @@ class WeatherRepository {
             .toList());
   }
 
+  /// Returns weather description translated to app language taken from [Locale]
+  /// object and based on a [code].
+  /// Description is filtered from [conditionsTranslations] map list.
   Map<String, dynamic> getConditionTranslationFromCode(int code) {
-    return (conditionsTranslations.firstWhere(
-            (element) => element['code'] == code)['languages'] as List)
-        .firstWhere(
-            (element) => element['lang_iso'] == appLanguage.languageCode);
+    return (conditionsTranslations
+                .firstWhere((element) => element['code'] == code)['languages']
+            as List) //fist get specific description from code
+        .firstWhere((element) =>
+            element['lang_iso'] ==
+            appLanguage
+                .languageCode); //then get translation based on app language
   }
 }
