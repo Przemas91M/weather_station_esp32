@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:weather_icons/weather_icons.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 
 import '../../../models/models.dart';
@@ -18,9 +20,15 @@ class StationSheetCubit extends Cubit<StationSheetCubitState> {
   /// and stores it in state variable.
   Future<void> getStationHistoricalData(int limit) async {
     emit(state.copyWith(status: StationSheetStatus.loading));
-    List<StationReading> data =
-        await weatherRepository.getReadingsOnce('Koszalin', limit);
+    List<StationReading> data = await weatherRepository.getReadingsOnce(
+        'Koszalin', limit); //TODO: get location from currently selected!
     emit(state.copyWith(
         status: StationSheetStatus.loaded, stationHistoricalData: data));
+  }
+
+  void changeChartData(SelectedChartData selectedData) {
+    emit(state.copyWith(status: StationSheetStatus.loading));
+    emit(state.copyWith(
+        status: StationSheetStatus.loaded, selectedData: selectedData));
   }
 }
