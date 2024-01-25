@@ -1,0 +1,23 @@
+name: WeatherStation ESP32
+
+on:
+  push:
+    branches:
+    - ci-dev
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: subosito/flutter-action@v2.4.0
+    with:
+      channel: 'stable'
+      flutter-version: '3.16.8'
+    - run: flutter pub get
+    - run: flutter build apk
+
+    - name: Upload to artifact
+      uses: actions/upload-artifact@v1
+      with:
+      name: test-app-profile
+      path: build/app/outputs/flutter-apk/app-release.apk
