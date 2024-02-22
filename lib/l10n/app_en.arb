@@ -5,7 +5,7 @@
     "yesterday": "Yesterday",
     "battery": "Battery",
     "solarCell": "Solar Cell",
-    "weatherForecast": "7 day forecast",
+    "weatherForecast": "2 day forecast",
     "settings": "Settings",
     "logout": "Log out",
     "theme": "Theme",
@@ -28,7 +28,11 @@
     "alreadyMember": "Already a member?",
     "signInLink": "Sign in here.",
     "locationsManagement": "My places",
-    "locationsAddFirst": "Add first place"
-
-
+    "locationsAddFirst": "Add first place",
+    "tempInside": "Temperature inside",
+    "tempOutside": "Temperature outside",
+    "humidity": "Humidity",
+    "uvIndex": "UV index",
+    "lux": "Lux",
+    "pressure": "Pressure"
 }

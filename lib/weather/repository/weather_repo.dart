@@ -182,7 +182,7 @@ class WeatherRepository {
           maxWindMph: value['day']['maxwind_mph'],
           totalPrecipMM: value['day']['totalprecip_mm'],
           totalPrecipIN: value['day']['totalprecip_in'],
-          avgHumidity: value['day']['avghumidity'],
+          avgHumidity: value['day']['avghumidity'] * 1.0,
           uvIndex: value['day']['uv'],
           condition: WeatherCondition.fromJson(
               value['day']['condition'],

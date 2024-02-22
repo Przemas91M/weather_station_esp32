@@ -53,9 +53,7 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final Locale locale = Localizations.localeOf(context);
-    var localeVocabulary = AppLocalizations.of(context);
     Intl.defaultLocale = locale.languageCode;
     User? user = context.select((AppBloc bloc) => bloc.state.user);
     bool temperatureUnits =
@@ -72,9 +70,8 @@ class MainPage extends StatelessWidget {
               value: BlocProvider.of<LocationManagementCubit>(context),
               child: _Drawer(
                 user: user,
-                localeVocabulary: localeVocabulary,
               )),
-          backgroundColor: theme.colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.background,
           appBar: AppBar(
             scrolledUnderElevation: 0.0,
             shape:
@@ -119,7 +116,8 @@ class MainPage extends StatelessWidget {
                             temperatureUnits: temperatureUnits,
                           ),
                           onTap: () => showModalBottomSheet(
-                                backgroundColor: theme.colorScheme.background,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.background,
                                 isScrollControlled: true,
                                 enableDrag: true,
                                 showDragHandle: true,
@@ -132,7 +130,9 @@ class MainPage extends StatelessWidget {
                                   child: BlocProvider.value(
                                       value: BlocProvider.of<
                                           LocationManagementCubit>(context),
-                                      child: const StationBottomModalSheet()),
+                                      child: StationBottomModalSheet(
+                                          currentLocation:
+                                              state.currentLocation!)),
                                 ),
                               )),
                     if (state.status == WeatherStatus.loadedWithoutStation)
@@ -175,14 +175,13 @@ class MainPage extends StatelessWidget {
 }
 
 class _Drawer extends StatelessWidget {
-  const _Drawer({Key? key, required this.user, required this.localeVocabulary})
-      : super(key: key);
-  final AppLocalizations? localeVocabulary;
+  const _Drawer({Key? key, required this.user}) : super(key: key);
   final User? user;
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    AppLocalizations? localeVocabulary = AppLocalizations.of(context);
     return Drawer(
       backgroundColor: theme.colorScheme.background,
       child: ListView(

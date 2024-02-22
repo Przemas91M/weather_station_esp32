@@ -5,7 +5,7 @@
     "yesterday": "Wczoraj",
     "battery": "Akumulator",
     "solarCell": "Panel PV",
-    "weatherForecast": "Prognoza 7 dniowa",
+    "weatherForecast": "Prognoza 2 dniowa",
     "settings": "Ustawienia",
     "logout": "Wyloguj",
     "theme": "Motyw",
@@ -28,5 +28,11 @@
     "alreadyMember": "Masz już konto?",
     "signInLink": "Zaloguj się tutaj.",
     "locationsManagement": "Moje miejsca",
-    "locationsAddFirst": "Dodaj pierwsze miejsce"
+    "locationsAddFirst": "Dodaj pierwsze miejsce",
+    "tempInside": "Temperatura wewnątrz",
+    "tempOutside": "Temperatura zewnątrz",
+    "humidity": "Wilgotność",
+    "uvIndex": "Indeks UV",
+    "lux": "Lux",
+    "pressure": "Ciśnienie"
 }

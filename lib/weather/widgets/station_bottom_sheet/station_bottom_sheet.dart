@@ -2,9 +2,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:weather_station_esp32/locations_management/models/location.dart';
 import 'package:weather_station_esp32/style/styling.dart';
 import 'package:weather_station_esp32/weather/widgets/station_bottom_sheet/cubit/station_sheet_cubit.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../models/models.dart';
 
@@ -25,20 +27,28 @@ enum InputDataType {
 /// StationBottomModalSheet(weatherRepository: WeatherRepository repository);
 /// ```
 class StationBottomModalSheet extends StatelessWidget {
-  const StationBottomModalSheet({super.key});
+  const StationBottomModalSheet({super.key, required this.currentLocation});
+
+  final Location currentLocation;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => StationSheetCubit(
           weatherRepository: context.read<WeatherRepository>()),
-      child: _BottomSheet(),
+      child: _BottomSheet(
+        currentLocation: currentLocation,
+      ),
     );
   }
 }
 
 /// Builds widgets based on [StationSheetCubit] state.
 class _BottomSheet extends StatelessWidget {
+  const _BottomSheet({required this.currentLocation});
+
+  final Location currentLocation;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<StationSheetCubit, StationSheetCubitState>(
@@ -56,8 +66,11 @@ class _BottomSheet extends StatelessWidget {
             ),
           );
         } else if (state.status == StationSheetStatus.initial) {
-          Future.wait(
-              [context.read<StationSheetCubit>().getStationHistoricalData(50)]);
+          Future.wait([
+            context
+                .read<StationSheetCubit>()
+                .getStationHistoricalData(50, currentLocation)
+          ]);
           return Container();
         } else {
           return Container();
@@ -71,9 +84,6 @@ class _BottomSheet extends StatelessWidget {
 /// Requires [data] to generate charts.
 /// Every weather parameter is displayed in a separate chart.
 /// User can tap on a chart line to read more detail from a single reading.
-///
-// TODO: change this screen to show only one chart, user selects data, then rebuild only chart.
-//
 class _DataChartsView extends StatelessWidget {
   const _DataChartsView(
       {required this.weatherData, required this.selectedData});
@@ -84,26 +94,6 @@ class _DataChartsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (weatherData.isEmpty) {
-      return const Center(child: Text('No data to show!'));
-    }
-    List<double> insideTemperatures = [];
-    List<double> outsideTemperatures = [];
-    List<double> insideTemperaturesF = [];
-    List<double> outsideTemperaturesF = [];
-    List<double> humidity = [];
-    List<double> pressure = [];
-    List<double> timestamps = [];
-    for (var value in weatherData) {
-      insideTemperatures.add(value.insideTemperature);
-      outsideTemperatures.add(value.outsideTemperature);
-      insideTemperaturesF.add(value.insideTemperatureF);
-      outsideTemperaturesF.add(value.outsideTemperatureF);
-      humidity.add(value.humidity);
-      pressure.add(value.pressure);
-      timestamps.add(value.timestamp * 1.0);
-    }
-
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -158,7 +148,8 @@ class _DataChartsView extends StatelessWidget {
                           (value) {
                             return DropdownMenuItem(
                               value: value,
-                              child: Text(value.label),
+                              child: Text(LocalizationHelper.translate(
+                                  context: context, dataType: value)),
                             );
                           },
                         ).toList());
@@ -167,10 +158,13 @@ class _DataChartsView extends StatelessWidget {
               )
             ],
           ),
-          _DataChart(
-            data: insideTemperatures,
-            timestamp: timestamps,
-            dataType: InputDataType.temperatureInside,
+          BlocBuilder<StationSheetCubit, StationSheetCubitState>(
+            builder: (context, state) {
+              return _DataChart(
+                inputData: weatherData,
+                dataType: state.selectedData,
+              );
+            },
           ),
         ],
       ),
@@ -183,81 +177,99 @@ class _DataChartsView extends StatelessWidget {
 /// Chart title and measurement units are set based on input [dataType].
 class _DataChart extends StatelessWidget {
   const _DataChart._(
-      {required this.data,
+      {required List<double> data,
       required this.timestamp,
       required this.dataType,
-      required String title,
       required String units})
-      : _title = title,
+      : _data = data,
         _units = units;
 
-  /// Takes data and timestamps and sets coresponding chart title and measurement units
+  /// Takes data and timestamps and sets coresponding chart title and measurement units.
   /// Initialize final internal fields.
   factory _DataChart(
-      {required List<double> data,
-      required List<double> timestamp,
-      required InputDataType dataType}) {
+      {required List<StationReading> inputData,
+      required SelectedChartData dataType}) {
     //TODO: change labels to translated ones!
-    String title = switch (dataType) {
-      InputDataType.temperatureInside => 'Temperature Inside',
-      InputDataType.temperatureOutSide => 'Temperature Outside',
-      InputDataType.humidity => 'Humidity',
-      InputDataType.pressure => 'Pressure',
-      InputDataType.lux => 'Light intensity',
-      InputDataType.uv => 'UV index'
-    };
-    String units = switch (dataType) {
-      InputDataType.temperatureInside => '°C',
-      InputDataType.temperatureOutSide => '°C',
-      InputDataType.humidity => '%',
-      InputDataType.pressure => 'hPa',
-      InputDataType.lux => 'Lux',
-      InputDataType.uv => 'UV:'
-    };
+    String units;
+    List<double> weatherData;
+    switch (dataType) {
+      case SelectedChartData.temperatureInside:
+        {
+          units = '°C';
+          weatherData =
+              inputData.map((reading) => reading.insideTemperature).toList();
+          break;
+        }
+      case SelectedChartData.temperatureOutside:
+        {
+          units = '°C';
+          weatherData =
+              inputData.map((reading) => reading.outsideTemperature).toList();
+          break;
+        }
+      case SelectedChartData.humidity:
+        {
+          units = '%';
+          weatherData = inputData.map((reading) => reading.humidity).toList();
+          break;
+        }
+      case SelectedChartData.pressure:
+        {
+          units = 'hPa';
+          weatherData = inputData.map((reading) => reading.pressure).toList();
+          break;
+        }
+      case SelectedChartData.lux:
+        {
+          units = 'lux';
+          weatherData = inputData.map((reading) => reading.lux).toList();
+          break;
+        }
+      case SelectedChartData.uv:
+        {
+          units = 'UV';
+          weatherData = inputData.map((reading) => reading.uvIndex).toList();
+          break;
+        }
+    }
     return _DataChart._(
-      data: data,
-      timestamp: timestamp,
+      data: weatherData,
+      timestamp: inputData.map((reading) => reading.timestamp * 1.0).toList(),
       dataType: dataType,
-      title: title,
       units: units,
     );
   }
 
   /// Weather data to show.
-  final List<double> data;
+  final List<double> _data;
 
   /// Timestamps when weather data was aquired.
   final List<double> timestamp;
-
-  /// Chart title.
-  final String _title;
 
   /// Units of measurement.
   final String _units;
 
   /// Weather data type - used to set chart title and measurement units.
-  final InputDataType dataType;
+  final SelectedChartData dataType;
 
   @override
   Widget build(BuildContext context) {
     List<FlSpot> spots = [];
     // Maximum data point
     double maxValue =
-        data.reduce((value, element) => value > element ? value : element);
+        _data.reduce((value, element) => value > element ? value : element);
     // Minimal data point
     double minValue =
-        data.reduce((value, element) => value < element ? value : element);
+        _data.reduce((value, element) => value < element ? value : element);
     // Minimal interval value
     double interval = 1.0;
     // Get desired data from given readings
-    for (int i = 0; i < data.length; i++) {
-      spots.add(FlSpot(timestamp[i], data[i]));
+    for (int i = 0; i < _data.length; i++) {
+      spots.add(FlSpot(timestamp[i], _data[i]));
     }
     // Calculate data interval value
-    var intervalCalc = ((maxValue).abs() + (minValue).abs()) / 6.0;
-    if (intervalCalc > 1) {
-      interval = intervalCalc;
-    }
+    interval =
+        (((maxValue).abs() - (minValue).abs()) / 5).clamp(1.0, double.infinity);
 
     return Container(
       padding: const EdgeInsets.only(left: 20, top: 15, right: 10),
@@ -286,6 +298,20 @@ class _DataChart extends StatelessWidget {
             AspectRatio(
               aspectRatio: 1.5,
               child: LineChart(LineChartData(
+                  lineTouchData: LineTouchData(
+                      enabled: true,
+                      touchTooltipData: LineTouchTooltipData(
+                        tooltipRoundedRadius: 20.0,
+                        getTooltipItems: (touchedSpots) {
+                          return touchedSpots.map((LineBarSpot touchedSpot) {
+                            return LineTooltipItem(
+                                spots[touchedSpot.spotIndex]
+                                    .y
+                                    .toStringAsFixed(1),
+                                const TextStyle(fontSize: 10));
+                          }).toList();
+                        },
+                      )),
                   borderData: FlBorderData(
                       show: true, border: Border.all(color: Colors.white)),
                   gridData: FlGridData(
@@ -302,8 +328,8 @@ class _DataChart extends StatelessWidget {
                           color: Colors.white.withOpacity(0.5), strokeWidth: 1);
                     },
                   ),
-                  maxY: maxValue + 1.0,
-                  minY: minValue - 1.0,
+                  maxY: maxValue + 1,
+                  minY: minValue - 1,
                   minX: spots[0].x,
                   maxX: spots.last.x,
                   backgroundColor: Colors.black,
@@ -333,17 +359,17 @@ class _DataChart extends StatelessWidget {
                           sideTitles: SideTitles(
                         showTitles: true,
                         interval: interval,
-                        reservedSize: 60,
+                        reservedSize: 85,
                         getTitlesWidget: (value, meta) {
-                          if (value <= (minValue - 1).toInt() ||
-                              value >= (maxValue + 1).toInt()) {
+                          if (value < (minValue - 0.6) ||
+                              value > (maxValue + 0.6)) {
                             return SideTitleWidget(
                                 axisSide: meta.axisSide, child: const Text(''));
                           }
                           return SideTitleWidget(
                               axisSide: meta.axisSide,
                               child:
-                                  Text('${value.toStringAsFixed(0)}$_units'));
+                                  Text('${value.toStringAsFixed(1)}$_units'));
                         },
                       )),
                       bottomTitles: AxisTitles(
@@ -369,5 +395,25 @@ class _DataChart extends StatelessWidget {
             ),
           ]),
     );
+  }
+}
+
+abstract class LocalizationHelper {
+  static String translate(
+      {required BuildContext context, required SelectedChartData dataType}) {
+    switch (dataType) {
+      case SelectedChartData.temperatureInside:
+        return AppLocalizations.of(context)!.tempInside;
+      case SelectedChartData.temperatureOutside:
+        return AppLocalizations.of(context)!.tempOutside;
+      case SelectedChartData.humidity:
+        return AppLocalizations.of(context)!.humidity;
+      case SelectedChartData.uv:
+        return AppLocalizations.of(context)!.uvIndex;
+      case SelectedChartData.pressure:
+        return AppLocalizations.of(context)!.pressure;
+      case SelectedChartData.lux:
+        return AppLocalizations.of(context)!.lux;
+    }
   }
 }
