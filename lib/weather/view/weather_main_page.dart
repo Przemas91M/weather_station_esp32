@@ -303,7 +303,7 @@ class _Drawer extends StatelessWidget {
           ),
           ListTile(
               leading: const Icon(Icons.logout),
-              title: Text(localeVocabulary!.logout,
+              title: Text(localeVocabulary.logout,
                   style: theme.textTheme.bodyLarge),
               onTap: () {
                 Navigator.pop(context);
