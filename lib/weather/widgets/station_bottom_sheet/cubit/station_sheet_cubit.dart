@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'package:weather_station_esp32/weather/repository/weather_repo.dart';
 
+import '../../../../locations_management/models/location.dart';
 import '../../../models/models.dart';
 
 part 'station_sheet_cubit_state.dart';
@@ -18,10 +19,11 @@ class StationSheetCubit extends Cubit<StationSheetCubitState> {
 
   /// Requests past [limit] station readings of type [StationReading] from Firebase
   /// and stores it in state variable.
-  Future<void> getStationHistoricalData(int limit) async {
+  Future<void> getStationHistoricalData(
+      int limit, Location currentLocation) async {
     emit(state.copyWith(status: StationSheetStatus.loading));
-    List<StationReading> data = await weatherRepository.getReadingsOnce(
-        'Koszalin', limit); //TODO: get location from currently selected!
+    List<StationReading> data =
+        await weatherRepository.getReadingsOnce(currentLocation.name, limit);
     emit(state.copyWith(
         status: StationSheetStatus.loaded, stationHistoricalData: data));
   }
